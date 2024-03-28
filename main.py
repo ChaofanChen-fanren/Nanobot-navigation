@@ -1,8 +1,8 @@
 import cv2
 import time
 from Obstacles import Obstacles
-from OpenFilrCamera import openFlirCamera
-from Robot import Robot
+from util import openFlirCamera
+from common import Robot
 import math
 from DAQ import DAQ
 

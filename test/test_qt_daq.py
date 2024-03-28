@@ -29,7 +29,7 @@ class MyThread(QThread):
 class MyWin(QWidget):
     def __init__(self):
         super().__init__()
-        self.ui = uic.loadUi("./daq.ui")
+        self.ui = uic.loadUi("../QtUI/daq.ui")
 
         # 从ui文件中加载控件
         self.f_edit = self.ui.F_Edit

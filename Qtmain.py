@@ -1,17 +1,15 @@
 import sys
 import time
 import math
-import numpy as np
 from DAQ import DAQ
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 import cv2
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.Qt import QApplication, QWidget, QThread
-from Robot import Robot
+from common import Robot
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore, QtWidgets
-from OpenFilrCamera import openFlirCamera
 from PID import PID
 
 
@@ -32,12 +30,13 @@ class VideoThread(QThread):
     # 实时显示追加线程（要继承QThread， 继承threading.Thread不行）
     signal = pyqtSignal()  # 信号
 
-    def __init__(self, robot):
+    def __init__(self, robot, frame_width=1920, frame_height=1080):
         super().__init__()
         self.cap = cv2.VideoCapture(0)
         # self.cap = openFlirCamera()
         self.robot = robot
         self.frame = None
+        self.frame_width, self.frame_height = frame_width, frame_height
 
     def run(self):
         self.cap = cv2.VideoCapture(0)
@@ -51,7 +50,7 @@ class VideoThread(QThread):
 
                 # self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
                 # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
-                self.frame = cv2.resize(self.frame, (1920, 1080))
+                self.frame = cv2.resize(self.frame, (self.frame_width, self.frame_height))
                 # print("hhhh")
                 self.robot.process_frame(self.frame)
                 self.robot.show_robot_frame(self.frame)
@@ -154,7 +153,8 @@ class MainWindow(QWidget):
         cap = cv2.VideoCapture(0)
         # cap = openFlirCamera()
         time.sleep(3)
-        self.robot = Robot(cap)
+        self.frame_width, self.frame_height = 1920, 1080
+        self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height)
 
         # 给Start Stop个按钮绑定槽函数
         self.ui.StartButton.clicked.connect(self.startDaq)  # 绑定槽函数

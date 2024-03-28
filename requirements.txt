@@ -1,6 +1,22 @@
-# pip install -r requirements.txt
+# pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+# python = 3.8
 
-opencv-contribute-python=4.6.0.66
-opencv-python=4.6.0.66
+# daq
+nidaqmx>=0.9.0
+
+# opencv
+opencv-python==4.5.5.64
+opencv-contrib-python==4.8.1.78
+
+# pyqt
+PyQt5>=5.15.9
+pyqt5-tools>=5.15.9.3.3
+
+# Flir Camera
+EasyPySpin>=2.0.1
+spinnaker-python>=2.4.0.144
+
+# pytest
+pytest>=8.1.1
 
 
