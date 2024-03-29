@@ -1,16 +1,12 @@
 import sys
 import time
 import math
-from DAQ import DAQ
-from PyQt5 import uic
-from PyQt5.QtCore import Qt
 import cv2
-from PyQt5.QtCore import pyqtSignal, QTimer
+from common import DAQ, PID, Robot
+from PyQt5.QtCore import pyqtSignal, QTimer, Qt
 from PyQt5.Qt import QApplication, QWidget, QThread
-from common import Robot
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5 import QtCore, QtWidgets
-from PID import PID
+from PyQt5 import QtCore, QtWidgets, uic
 
 
 class TextBrowserThread(QThread):
@@ -120,7 +116,7 @@ class MouseKeyTracker(QtCore.QObject):
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.ui = uic.loadUi("./mainqt.ui")
+        self.ui = uic.loadUi("./QtUI/mainqt.ui")
 
         # f, beta, B edit初始化
         self.f_edit = self.ui.F_spinBox
@@ -372,7 +368,6 @@ class MainWindow(QWidget):
 
     def update_daq(self):
         self.daq.run_old()
-
 
 
 if __name__ == "__main__":

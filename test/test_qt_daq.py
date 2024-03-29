@@ -1,6 +1,6 @@
 import sys
 import time
-from DAQ import DAQ
+from common import DAQ
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from PyQt5.Qt import QApplication, QWidget, QThread
