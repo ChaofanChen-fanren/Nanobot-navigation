@@ -107,7 +107,7 @@ def test_daq_start():
 
 
 def test_unet_obstacle():
-    ob = Obstacle(weights_path="../unet.pth", image_path='../image/1.jpg')
+    ob = Obstacle(weights_path="../unet.pth", image_path='../image/3.png')
     # 测试get_obstacle_points
     # ox, oy = ob.get_obstacle_points()
     # print(ox, oy)
@@ -180,6 +180,6 @@ if __name__ == '__main__':
     # test_open_filr_camera()
     # test_one_robot()
     # test_multiple_robot()
-    # test_unet_obstacle()
+    test_unet_obstacle()
     # test_daq_start()
-    test_astar_path()
+    # test_astar_path()

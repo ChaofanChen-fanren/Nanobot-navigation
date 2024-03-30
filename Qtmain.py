@@ -175,6 +175,7 @@ class MainWindow(QWidget):
         self.tracker.leftKeyPressed.connect(lambda: self.beta_edit.setValue(90))
         self.tracker.rightKeyPressed.connect(lambda: self.beta_edit.setValue(270))
 
+        self.position_list = None
         self.videoThread = VideoThread(self.robot)
         self.videoThread.signal.connect(self.refreshShow)
         self.videoThread.start()
@@ -184,7 +185,10 @@ class MainWindow(QWidget):
         self.printThread.start()
 
         # PID 初始化
-        self.pid = PID(self.robot.get_robot_position()[0], self.robot.get_robot_position()[1])
+        ret, frame = cap.read()
+        frame = cv2.resize(frame, (self.frame_width, self.frame_height))
+
+        self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
         # 创建一个定时器
         self.pidTimer = QTimer(self.ui)
         # 设置定时器的间隔时间（毫秒为单位）
@@ -194,7 +198,6 @@ class MainWindow(QWidget):
         self.pidTimer.timeout.connect(self.update_pid)
 
         self.pid_t = 0
-        self.position_list = None
         # # 创建一个定时器
         # self.daqTimer = QTimer(self.ui)
         # # 设置定时器的间隔时间（毫秒为单位）

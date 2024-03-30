@@ -13,7 +13,7 @@ obstacle_map_list：每一次更新后将之前的障碍物地图保存
 
 
 class Obstacle(object):
-    def __init__(self, weights_path, image_path):
+    def __init__(self, weights_path, image_path=None, frame=None):
         # segment model device
         self.device = "cpu"
         print("using {} device.".format(self.device))
@@ -32,8 +32,12 @@ class Obstacle(object):
                                                   transforms.Normalize(mean=mean, std=std)])
 
         # 识别图像将障碍物转化为0和1
-        self.img_path = image_path
-        self.obstacle_map = self.process_image(self.img_path)
+        if image_path:
+            self.img_path = image_path
+            self.frame = cv2.imread(self.img_path)
+        else:
+            self.frame = frame
+        self.obstacle_map = self.process_image(frame)
         # self.assemble = 3 * np.array([
         #     [-1, -1],
         #     [0, 2],
@@ -74,9 +78,9 @@ class Obstacle(object):
         print(f"障碍物的总数为: {len(obstacle_points)}")
         return np.array(obstacle_points)
 
-    def process_image(self, image_path):
+    def process_image(self, frame):
         # load image
-        original_img = cv2.imread(image_path)
+        original_img = frame
         img = self.data_transform(original_img)
         # expand batch dimension
         image_bgr = torch.unsqueeze(img, dim=0)

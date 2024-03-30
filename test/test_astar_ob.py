@@ -1,21 +1,6 @@
-import EasyPySpin
-import numpy as np
+from common import Obstacle, Astar
 import cv2
-
-
-def openFlirCamera():
-    cap = EasyPySpin.VideoCapture(0)
-    if not cap.isOpened():
-        print("Camera can't open\nexit")
-        return -1
-
-    # cap.set(cv2.CAP_PROP_EXPOSURE, -1)  # -1 sets exposure_time to auto
-    # cap.set(cv2.CAP_PROP_GAIN, -1)  # -1 sets gain to auto
-    return cap
-
-
-def distance(point1, point2):
-    return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+import numpy as np
 
 
 def mouse_callback(event, x, y, flags, param):
@@ -64,3 +49,42 @@ def get_start_goal(frame):
     cv2.destroyAllWindows()
     start_ponint, end_point = param[2:4]
     return start_ponint[0], start_ponint[1], end_point[0], end_point[1]
+
+
+def show_ploy(img, ploy):
+    mask = np.zeros(img.shape, np.uint8)
+    pts = np.array([ploy], np.int32)
+    pts = pts.reshape((-1, 1, 2))
+    mask = cv2.fillPoly(mask, [pts], (255, 255, 255))
+    im = cv2.addWeighted(img, 0.4, mask, 0.6, 0)
+    cv2.imshow("img", im)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+cap = cv2.VideoCapture(0)
+ret, frame = cap.read()
+cap.release()
+obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
+# img = cv2.imread("../image/3.png")
+inflation_radius = 7  # 障碍物膨胀半径
+grid_size = 2.0  # 网格大小
+ploy = get_ploy_points(frame)
+# ploy 获取为图像坐标系
+astar = Astar(obstacle.obstacle_map, inflation_radius, grid_size, ploy=ploy)
+sx, sy, gx, gy = get_start_goal(frame)
+# print(sx , sy, gx , gy)
+rx, ry = astar.planning(*astar.convert_coordinates(sx, sy), *astar.convert_coordinates(gx, gy))
+astar.show_animation()
+# show_ploy(img, ploy)
+
+
+
+
+#
+# img = cv2.imread("../image/3.png")
+# param = [img]
+# cv2.imshow("select ploy", param[0])
+# cv2.setMouseCallback("select ploy", mouse_callback, param=param)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+# print(param[1:])

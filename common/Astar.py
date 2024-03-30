@@ -1,6 +1,7 @@
 import math
 import matplotlib.pyplot as plt
-
+import cv2
+import numpy as np
 """
 Astar类
     original_obstacle_map：存储原始的障碍物地图
@@ -67,21 +68,24 @@ class Astar:
         return motion
 
     def inflate_obstacles(self, obstacle_map):
-        # inflation_radius 是膨胀系数，表示除了障碍物本身外，额外膨胀的网格数量
-        inflation_radius = int(self.inflation_radius)
-        x_width, y_width = obstacle_map.shape[0], obstacle_map.shape[1]
-        inflated_obstacle_map = obstacle_map.copy()  # 创建障碍物地图的副本以膨胀障碍物
-        for ix in range(x_width):
-            for iy in range(y_width):
-                if obstacle_map[ix][iy] == True:  # 发现障碍物
-                    # 遍历障碍物周围的网格，根据膨胀系数膨胀
-                    for dx in range(-inflation_radius, inflation_radius + 1):
-                        for dy in range(-inflation_radius, inflation_radius + 1):
-                            new_ix = ix + dx
-                            new_iy = iy + dy
-                            # 确保膨胀的网格在地图范围内
-                            if 0 <= new_ix < x_width and 0 <= new_iy < y_width:
-                                inflated_obstacle_map[new_ix][new_iy] = True
+        # # inflation_radius 是膨胀系数，表示除了障碍物本身外，额外膨胀的网格数量
+        # inflation_radius = int(self.inflation_radius)
+        # x_width, y_width = obstacle_map.shape[0], obstacle_map.shape[1]
+        # inflated_obstacle_map = obstacle_map.copy()  # 创建障碍物地图的副本以膨胀障碍物
+        # for ix in range(x_width):
+        #     for iy in range(y_width):
+        #         if obstacle_map[ix][iy] == True:  # 发现障碍物
+        #             # 遍历障碍物周围的网格，根据膨胀系数膨胀
+        #             for dx in range(-inflation_radius, inflation_radius + 1):
+        #                 for dy in range(-inflation_radius, inflation_radius + 1):
+        #                     new_ix = ix + dx
+        #                     new_iy = iy + dy
+        #                     # 确保膨胀的网格在地图范围内
+        #                     if 0 <= new_ix < x_width and 0 <= new_iy < y_width:
+        #                         inflated_obstacle_map[new_ix][new_iy] = True
+        kernel = np.ones((self.inflation_radius, self.inflation_radius), np.uint8)
+        # 对图像进行腐蚀操作
+        inflated_obstacle_map = cv2.dilate(obstacle_map, kernel, iterations=2)
         return inflated_obstacle_map
 
     # 绘制栅格地图
@@ -288,10 +292,11 @@ class Astar:
             ry.append(self.calc_position(n.y, self.min_y))  # 节点的y坐标
             parent_index = n.parent_index  # 节点的父节点索引
 
-        simpler_points = [(x, y) for x, y in zip(rx, ry)]
-        simpler_points = self.simplify_path(simpler_points)
-        rx = [point[0] for point in simpler_points]
-        ry = [point[1] for point in simpler_points]
+        # TODO 简化路径
+        # simpler_points = [(x, y) for x, y in zip(rx, ry)]
+        # simpler_points = self.simplify_path(simpler_points)
+        # rx = [point[0] for point in simpler_points]
+        # ry = [point[1] for point in simpler_points]
         return rx, ry
 
     # 计算两点间的斜率，如果斜率不存在（即垂直），返回None
