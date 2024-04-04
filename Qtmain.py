@@ -154,8 +154,13 @@ class MainWindow(QWidget):
         self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height)
         # PID 初始化
         ret, frame = cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
-        self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
+
+        try:
+            self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
+        except Exception as e:
+            print(f"PID------: {e}")
 
         # 给Start Stop个按钮绑定槽函数
         self.ui.StartButton.clicked.connect(self.startDaq)  # 绑定槽函数
@@ -189,9 +194,8 @@ class MainWindow(QWidget):
         self.printThread.signal.connect(self.slot_text_browser)
         self.printThread.start()
 
-
+        # PID 初始化
         # 创建一个定时器
-        # PID 定时器
         self.pidTimer = QTimer(self.ui)
         # 设置定时器的间隔时间（毫秒为单位）
         interval = 1000  # 1秒

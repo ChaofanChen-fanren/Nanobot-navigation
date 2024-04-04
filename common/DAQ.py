@@ -40,13 +40,13 @@ class DAQ(QThread):
         beta_rad = math.radians(self.beta)
         alpha_rad = math.radians(self.alpha)
         # (B/26)*sin(2*pi*f)*(-1)*cos(alpha_rad)
-        left = (self.B / 26) * math.sin(2 * math.pi * self.f * self.t) * (-1) * math.cos(alpha_rad)
+        left = (self.B) * math.sin(2 * math.pi * self.f * self.t) * (-1) * math.cos(alpha_rad)
         # (B/26)*sin(2*pi*f + m)
-        right = (self.B / 26) * math.sin(2 * math.pi * self.f * self.t + self.m)
-        self.write_a0 = (left * math.cos(beta_rad) + right * math.sin(beta_rad)) * 43 / 10.81
-        self.write_a1 = (left * math.sin(beta_rad) - right * math.cos(beta_rad)) * 27.9 / 8.26
+        right = (self.B) * math.sin(2 * math.pi * self.f * self.t + self.m)
+        self.write_a0 = (left * math.cos(beta_rad) + right * math.sin(beta_rad)) * 43 / 10.81 / 10
+        self.write_a1 = (left * math.sin(beta_rad) - right * math.cos(beta_rad)) * 27.9 / 8.26 / 10
         # B/26*sin(2*pi*f)*sin(alpha_rad)*30*12
-        self.write_a2 = (self.B / 26) * math.sin(2 * math.pi * self.f * self.t) * math.sin(alpha_rad) * 29.4 / 19.42
+        self.write_a2 = (self.B) * math.sin(2 * math.pi * self.f * self.t) * math.sin(alpha_rad) * 29.4 / 19.42 / 10
 
     def run_old(self) -> None:
         self.t = 0
@@ -136,6 +136,6 @@ class DAQ(QThread):
         self.flag = False
 
     def startDaq(self):
-        self.B = 10
+        self.B = 20
         self.flag = True
 

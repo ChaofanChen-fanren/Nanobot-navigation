@@ -85,7 +85,7 @@ class Astar:
         #                         inflated_obstacle_map[new_ix][new_iy] = True
         kernel = np.ones((self.inflation_radius, self.inflation_radius), np.uint8)
         # 对图像进行腐蚀操作
-        inflated_obstacle_map = cv2.dilate(obstacle_map, kernel, iterations=2)
+        inflated_obstacle_map = cv2.dilate(obstacle_map, kernel, iterations=3)
         return inflated_obstacle_map
 
     # 绘制栅格地图

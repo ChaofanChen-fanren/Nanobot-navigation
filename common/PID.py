@@ -1,16 +1,16 @@
 import math
 from .Astar import Astar
 from .Obstacle import Obstacle
-from util import get_ploy_points, get_start_goal
+from util import get_ploy_points, get_start_goal, generate_points
 import cv2
 
 
 class PID:
     def __init__(self, frame,
                  x0, y0,
-                 p1=0.1, i1=0.001, d1=0.05,
-                 p2=0.1, i2=0.001, d2=0.05,
-                 f=10):
+                 p1=0.1, i1=0.001, d1=0.005,
+                 p2=0.1, i2=0.001, d2=0.005,
+                 f=15):
         # 设置PID参数
         self.k_p1 = p1
         self.k_p2 = p2
@@ -28,8 +28,8 @@ class PID:
 
         self.uPrevious = 0
         self.uCurent = 0
-        self.setValue_x = self.x0
-        self.setValue_y = self.y0
+        self.setValue_x = 0
+        self.setValue_y = 0
         self.lastErr_x = 0
         self.lastErr_y = 0
         self.errSum_x = 0
@@ -39,17 +39,16 @@ class PID:
 
         # 通过Astar算法计算路径
         self.path_x_list, self.path_y_list = self.get_path(frame)
-        self.index_path = 0
-        self.is_arrived_dis = 5.0
 
     @staticmethod
     def imgxy2robotxy(img_height, x, y):
         return x, img_height - y
 
     def get_path(self, frame):
+        # obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
         obstacle = Obstacle(weights_path="./unet.pth", frame=frame)
-        inflation_radius = 7  # 障碍物膨胀半径
-        grid_size = 2.0  # 网格大小
+        inflation_radius = 15  # 障碍物膨胀半径
+        grid_size = 3.0  # 网格大小
         ploy = get_ploy_points(frame)
         # ploy 获取为图像坐标系
         astar = Astar(obstacle.obstacle_map, inflation_radius, grid_size, ploy=ploy)
@@ -58,6 +57,11 @@ class PID:
         # 数组坐标系 转换为 机器人坐标系  数组-》图像-》机器人  路径是倒推
         rx, ry = rx[::-1], ry[::-1]
         path_x_list, path_y_list = [], []
+        gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=ry[0], y=rx[0]),  3)
+        for point in gen_points:
+            path_x_list.append(point[0])
+            path_y_list.append(point[1])
+
         for kx, ky in zip(rx, ry):
             ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=ky, y=kx)
             path_x_list.append(ix)
@@ -67,10 +71,8 @@ class PID:
     def GetCalcuValue(self, t):
         # x = self.x0 + t
         # y = self.y0 + 200*math.sin(t/50)
-        self.index_path += 1
-        if self.index_path < len(self.path_x_list):
-            x = self.path_x_list[self.index_path]
-            y = self.path_y_list[self.index_path]
+        x = self.path_x_list[t]
+        y = self.path_y_list[t]
         return x, y
 
     # 限幅函数
@@ -82,26 +84,10 @@ class PID:
         else:
             return term
 
-    def is_arrived(self, robot_position):
-        dis = math.dist(robot_position, (self.setValue_x, self.setValue_y))
-        return True if dis < self.is_arrived_dis else False
-
-    def clear_pid(self):
-        self.lastErr_x = 0
-        self.lastErr_y = 0
-        self.errSum_x = 0
-        self.errSum_y = 0
-
     # 位置式PID
     def pidPosition(self, robot_position, t):
         print(f"X:{robot_position[0]} , Y: {robot_position[1]} , T:{t:.2f}\n")
-        # 到达当前设定目标点后，更新下一个目标点，清楚pid 参数 Err=0 errSum=0
-        if self.is_arrived(robot_position):
-            self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
-            # self.clear_pid()
-        # 到达最终的中点
-        if self.index_path == len(self.path_x_list):
-            return 0, 0   # 返回 beta=0， B=0
+        self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
         # P
         err_x = self.setValue_x - robot_position[0]
         err_y = self.setValue_y - robot_position[1]
@@ -142,7 +128,8 @@ class PID:
         return beta
 
     def cal_B(self, dx, dy, t):
-        B = math.sqrt(dx * dx + dy * dy) / math.cos(2 * math.pi * self.f * t)
+        # B = math.sqrt(dx * dx + dy * dy) / math.cos(2 * math.pi * self.f * t)
+        B = math.sqrt(dx * dx + dy * dy)
         return B
 
     def set_f(self, value):
