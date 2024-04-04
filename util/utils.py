@@ -62,8 +62,8 @@ def get_start_goal(frame):
     cv2.setMouseCallback("select point", mouse_callback, param=param)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    start_ponint, end_point = param[2:4]
-    return start_ponint[0], start_ponint[1], end_point[0], end_point[1]
+    start_ponint, end_point, sin_point = param[2:5]
+    return start_ponint[0], start_ponint[1], end_point[0], end_point[1], sin_point[0], sin_point[1]
 
 
 def generate_points(p1, p2, pixel_spacing):
@@ -92,3 +92,32 @@ def generate_points(p1, p2, pixel_spacing):
     points.append(p2)
 
     return points
+
+
+def generate_sin_wave(p1, p2, pixel_spacing, frequency=20, amplitude=30):
+    # 将两个点转换为 numpy 数组
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+
+    # 计算直线的方向向量
+    direction_vector = p2 - p1
+
+    # 计算两点间的距离
+    distance = np.linalg.norm(direction_vector)
+
+    # 计算总共需要生成的点数
+    num_points = int(distance / pixel_spacing) + 1
+
+    # 计算步长
+    step = direction_vector / (num_points - 1)
+
+    # 生成坐标点
+    points = []
+    for i in range(num_points):
+        # 计算每个点的坐标
+        point = p1 + step * i
+        x = np.linalg.norm(point - p1)
+        y = amplitude * np.sin(2 * np.pi * frequency * x / distance)
+        points.append([point[0], point[1] + y])
+
+    return np.array(points)

@@ -1,16 +1,16 @@
 import math
 from .Astar import Astar
 from .Obstacle import Obstacle
-from util import get_ploy_points, get_start_goal, generate_points
+from util import get_ploy_points, get_start_goal, generate_points, generate_sin_wave
 import cv2
 
 
 class PID:
     def __init__(self, frame,
                  x0, y0,
-                 p1=0.1, i1=0.001, d1=0.005,
-                 p2=0.1, i2=0.001, d2=0.005,
-                 f=15):
+                 p1=0.3, i1=0.001, d1=0.001,
+                 p2=0.3, i2=0.001, d2=0.001,
+                 f=13):
         # 设置PID参数
         self.k_p1 = p1
         self.k_p2 = p2
@@ -37,6 +37,8 @@ class PID:
         self.errSumLimit_x = 1000
         self.errSumLimit_y = 1000
 
+        self.last_Err_dm = 0
+
         # 通过Astar算法计算路径
         self.path_x_list, self.path_y_list = self.get_path(frame)
 
@@ -47,17 +49,18 @@ class PID:
     def get_path(self, frame):
         # obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
         obstacle = Obstacle(weights_path="./unet.pth", frame=frame)
-        inflation_radius = 15  # 障碍物膨胀半径
-        grid_size = 3.0  # 网格大小
+        inflation_radius = 10  # 障碍物膨胀半径
+        grid_size = 5.0  # 网格大小
         ploy = get_ploy_points(frame)
         # ploy 获取为图像坐标系
         astar = Astar(obstacle.obstacle_map, inflation_radius, grid_size, ploy=ploy)
-        sx, sy, gx, gy = get_start_goal(frame)
+        sx, sy, gx, gy, sin_x, sin_y = get_start_goal(frame)
         rx, ry = astar.planning(*astar.convert_coordinates(sx, sy), *astar.convert_coordinates(gx, gy))
         # 数组坐标系 转换为 机器人坐标系  数组-》图像-》机器人  路径是倒推
         rx, ry = rx[::-1], ry[::-1]
         path_x_list, path_y_list = [], []
-        gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=ry[0], y=rx[0]),  3)
+        gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=ry[0], y=rx[0]),  5)
+
         for point in gen_points:
             path_x_list.append(point[0])
             path_y_list.append(point[1])
@@ -66,7 +69,12 @@ class PID:
             ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=ky, y=kx)
             path_x_list.append(ix)
             path_y_list.append(iy)
-        return path_x_list, path_y_list
+        sin_points = generate_sin_wave(self.imgxy2robotxy(frame.shape[0], x=ry[-1], y=rx[-1]),
+                                       self.imgxy2robotxy(frame.shape[0], x=sin_x, y=sin_y), pixel_spacing=10)
+        for point in sin_points:
+            path_x_list.append(point[0])
+            path_y_list.append(point[1])
+        return path_x_list[::2], path_y_list[::2]
 
     def GetCalcuValue(self, t):
         # x = self.x0 + t
@@ -89,28 +97,28 @@ class PID:
         print(f"X:{robot_position[0]} , Y: {robot_position[1]} , T:{t:.2f}\n")
         self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
         # P
-        err_x = self.setValue_x - robot_position[0]
-        err_y = self.setValue_y - robot_position[1]
-        # I
-        self.errSum_x += err_x
-        self.errSum_y += err_y
-        # D
-        dErr_x = err_x - self.lastErr_x
-        dErr_y = err_y - self.lastErr_y
+        d_x = self.setValue_x - robot_position[0]
+        d_y = self.setValue_y - robot_position[1]
+        # d_x = robot_position[0] - self.setValue_x
+        # d_y = robot_position[1] - self.setValue_y
+        # dm
+        dm = math.sqrt(d_x * d_x + d_y * d_y)
+        d_err_dm = dm - self.last_Err_dm
+        self.last_Err_dm = dm
 
-        self.lastErr_x = err_x
-        self.lastErr_y = err_y
+        kp_b, kd_b, kp_f, kd_f = 0.08, 0.001, 0.42, 0.10
 
-        self.errSum_x = self.limitIntegralTerm(self.errSum_x, self.errSumLimit_x)
-        self.errSum_y = self.limitIntegralTerm(self.errSum_y, self.errSumLimit_y)
-
-        PID_X = self.k_p1 * err_x + (self.k_i1 * self.errSum_x) + (self.k_d1 * dErr_x)
-        PID_Y = self.k_p2 * err_y + (self.k_i2 * self.errSum_y) + (self.k_d2 * dErr_y)
-
-        beta = self.cal_beta(PID_X, PID_Y)
-        B = self.cal_B(PID_X, PID_Y, t)
-
-        return beta, B
+        B = kp_b*dm + kd_b*d_err_dm
+        B = 2
+        if B > 15:
+            B = 15
+        f = kp_f*dm + kd_f*d_err_dm
+        if f > 70:
+            f = 70
+        print(f"-----PID UPDATE f:{f}, B:{B}, dm:{dm}")
+        beta = self.cal_beta(dx=d_x, dy=d_y)
+        # f = 10
+        return beta, B, f
 
     def plot_list(self):
         position_list = list()
@@ -130,7 +138,12 @@ class PID:
     def cal_B(self, dx, dy, t):
         # B = math.sqrt(dx * dx + dy * dy) / math.cos(2 * math.pi * self.f * t)
         B = math.sqrt(dx * dx + dy * dy)
+        if B > 25:
+            B = 25
         return B
+
+    def cal_f(self, dx, dy, t):
+        f = 1.0*(math.fabs(dx))
 
     def set_f(self, value):
         self.f = value
