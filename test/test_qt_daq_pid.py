@@ -3,6 +3,7 @@ import time
 import math
 import cv2
 from common import DAQ, PID, Robot
+from util import openFlirCamera
 from PyQt5.QtCore import pyqtSignal, QTimer, Qt
 from PyQt5.Qt import QApplication, QWidget, QThread
 from PyQt5.QtGui import QImage, QPixmap
@@ -28,15 +29,15 @@ class VideoThread(QThread):
 
     def __init__(self, robot, frame_width=1920, frame_height=1080):
         super().__init__()
-        self.cap = cv2.VideoCapture(0)
-        # self.cap = openFlirCamera()
+        # self.cap = cv2.VideoCapture(0)
+        self.cap = openFlirCamera()
         self.robot = robot
         self.frame = None
         self.frame_width, self.frame_height = frame_width, frame_height
 
     def run(self):
-        self.cap = cv2.VideoCapture(0)
-        # self.cap = openFlirCamera()
+        # self.cap = cv2.VideoCapture(0)
+        self.cap = openFlirCamera()
         try:
             while self.cap.isOpened():
                 ret, self.frame = self.cap.read()
@@ -44,7 +45,7 @@ class VideoThread(QThread):
                     print("Failed to grab frame")
                     break
 
-                # self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+                self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
                 # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
                 self.frame = cv2.resize(self.frame, (self.frame_width, self.frame_height))
                 # print("hhhh")
@@ -146,8 +147,8 @@ class MainWindow(QWidget):
         self.robot_mx_edit = self.ui.x_spinBox
         self.robot_my_edit = self.ui.y_spinBox
         self.daq = DAQ(['Dev1/ao0', 'Dev1/ao1', 'Dev1/ao2'])
-        cap = cv2.VideoCapture(0)
-        # cap = openFlirCamera()
+        # cap = cv2.VideoCapture(0)
+        cap = openFlirCamera()
         time.sleep(3)
         self.frame_width, self.frame_height = 1920, 1080
         self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height)
@@ -184,7 +185,7 @@ class MainWindow(QWidget):
         self.printThread.start()
 
         # PID 初始化
-        self.pid = PID(self.robot.get_robot_position()[0], self.robot.get_robot_position()[1])
+        self.pid = PID(frame=None, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
         # 创建一个定时器
         self.pidTimer = QTimer(self.ui)
         # 设置定时器的间隔时间（毫秒为单位）

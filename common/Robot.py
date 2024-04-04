@@ -9,7 +9,7 @@ class Robot:
 
         # Read the first frame
         ret, frame = cap.read()
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (frame_width, frame_height))
         # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
         if not ret:

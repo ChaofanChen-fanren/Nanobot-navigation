@@ -136,6 +136,6 @@ class DAQ(QThread):
         self.flag = False
 
     def startDaq(self):
-        self.B = 20
+        self.B = 10
         self.flag = True
 

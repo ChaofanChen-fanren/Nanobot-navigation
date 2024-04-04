@@ -28,8 +28,8 @@ class PID:
 
         self.uPrevious = 0
         self.uCurent = 0
-        self.setValue_x = 0
-        self.setValue_y = 0
+        self.setValue_x = self.x0
+        self.setValue_y = self.y0
         self.lastErr_x = 0
         self.lastErr_y = 0
         self.errSum_x = 0
@@ -39,6 +39,8 @@ class PID:
 
         # 通过Astar算法计算路径
         self.path_x_list, self.path_y_list = self.get_path(frame)
+        self.index_path = 0
+        self.is_arrived_dis = 5.0
 
     @staticmethod
     def imgxy2robotxy(img_height, x, y):
@@ -65,8 +67,10 @@ class PID:
     def GetCalcuValue(self, t):
         # x = self.x0 + t
         # y = self.y0 + 200*math.sin(t/50)
-        x = self.path_x_list[t]
-        y = self.path_y_list[t]
+        self.index_path += 1
+        if self.index_path < len(self.path_x_list):
+            x = self.path_x_list[self.index_path]
+            y = self.path_y_list[self.index_path]
         return x, y
 
     # 限幅函数
@@ -78,10 +82,26 @@ class PID:
         else:
             return term
 
+    def is_arrived(self, robot_position):
+        dis = math.dist(robot_position, (self.setValue_x, self.setValue_y))
+        return True if dis < self.is_arrived_dis else False
+
+    def clear_pid(self):
+        self.lastErr_x = 0
+        self.lastErr_y = 0
+        self.errSum_x = 0
+        self.errSum_y = 0
+
     # 位置式PID
     def pidPosition(self, robot_position, t):
         print(f"X:{robot_position[0]} , Y: {robot_position[1]} , T:{t:.2f}\n")
-        self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
+        # 到达当前设定目标点后，更新下一个目标点，清楚pid 参数 Err=0 errSum=0
+        if self.is_arrived(robot_position):
+            self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
+            # self.clear_pid()
+        # 到达最终的中点
+        if self.index_path == len(self.path_x_list):
+            return 0, 0   # 返回 beta=0， B=0
         # P
         err_x = self.setValue_x - robot_position[0]
         err_y = self.setValue_y - robot_position[1]

@@ -53,18 +53,18 @@ class Astar:
     @staticmethod
     def get_motion_model():
         # [dx, dy, cost]
-        # motion = [[1, 0, 1],  # 右
-        #           [0, 1, 1],  # 上
-        #           [-1, 0, 1],  # 左
-        #           [0, -1, 1],  # 下
-        #           [-1, -1, math.sqrt(2)],  # 左下
-        #           [-1, 1, math.sqrt(2)],  # 左上
-        #           [1, -1, math.sqrt(2)],  # 右下
-        #           [1, 1, math.sqrt(2)]]  # 右上
         motion = [[1, 0, 1],  # 右
                   [0, 1, 1],  # 上
                   [-1, 0, 1],  # 左
-                  [0, -1, 1],]  # 下
+                  [0, -1, 1],  # 下
+                  [-1, -1, math.sqrt(2)],  # 左下
+                  [-1, 1, math.sqrt(2)],  # 左上
+                  [1, -1, math.sqrt(2)],  # 右下
+                  [1, 1, math.sqrt(2)]]  # 右上
+        # motion = [[1, 0, 1],  # 右
+        #           [0, 1, 1],  # 上
+        #           [-1, 0, 1],  # 左
+        #           [0, -1, 1],]  # 下
         return motion
 
     def inflate_obstacles(self, obstacle_map):

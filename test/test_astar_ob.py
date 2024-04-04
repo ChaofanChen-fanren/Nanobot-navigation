@@ -61,11 +61,13 @@ def show_ploy(img, ploy):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-cap = cv2.VideoCapture(0)
-ret, frame = cap.read()
-cap.release()
+# cap = cv2.VideoCapture(0)
+# ret, frame = cap.read()
+# cap.release()
+# obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
+
+frame = cv2.imread("../image/1.jpg")
 obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
-# img = cv2.imread("../image/3.png")
 inflation_radius = 7  # 障碍物膨胀半径
 grid_size = 2.0  # 网格大小
 ploy = get_ploy_points(frame)
