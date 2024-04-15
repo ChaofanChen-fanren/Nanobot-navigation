@@ -4,6 +4,7 @@ from common import DAQ
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from PyQt5.Qt import QApplication, QWidget, QThread
+import os
 
 
 class MyThread(QThread):
@@ -45,6 +46,8 @@ class MyWin(QWidget):
         self.beta_edit.editingFinished.connect(self.beta_changed)
 
         self.daq = DAQ(['Dev1/ao0', 'Dev1/ao1', 'Dev1/ao2'])
+        self.daq.set_B(20)
+        # self.daq.set_alpha(0)
 
         # self.textBrowser.setText("fffffff")
 

@@ -66,6 +66,7 @@ def get_start_goal(frame):
     return start_ponint[0], start_ponint[1], end_point[0], end_point[1], sin_point[0], sin_point[1]
 
 
+
 def generate_points(p1, p2, pixel_spacing):
     # 将两个点转换为 numpy 数组
     p1 = np.array(p1)
@@ -121,3 +122,39 @@ def generate_sin_wave(p1, p2, pixel_spacing, frequency=20, amplitude=30):
         points.append([point[0], point[1] + y])
 
     return np.array(points)
+
+
+def generate_circle_path(x0, y0, radius, step_size):
+    # 生成圆形路径上的点
+    angles = np.linspace(0, 2 * np.pi, int(2 * np.pi * radius / step_size))
+    x = x0 + radius * np.cos(angles)
+    y = y0 + radius * np.sin(angles) - radius
+    return x, y
+
+
+def generate_square_path(x0, y0, side_length, step_size):
+    # 生成正方形路径上的点
+    x = []
+    y = []
+    for i in range(0, side_length + 1, step_size):
+        x.append(x0 + i)
+        y.append(y0)
+    for i in range(0, side_length + 1, step_size):
+        x.append(x0 + side_length)
+        y.append(y0 + i)
+    for i in range(side_length, -1, -step_size):
+        x.append(x0 + i)
+        y.append(y0 + side_length)
+    for i in range(side_length, -1, -step_size):
+        x.append(x0)
+        y.append(y0 + i)
+    return x, y
+
+
+def generate_sin_path(x0, y0, amplitude, period, step_size):
+    # 生成sin函数路径上的点
+    x = np.arange(0, period + step_size, step_size)
+    y = amplitude * np.sin(2 * np.pi * x / period)
+    x += x0
+    y += y0
+    return x, y

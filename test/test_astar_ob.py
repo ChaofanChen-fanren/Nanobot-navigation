@@ -1,7 +1,7 @@
 from common import Obstacle, Astar
 import cv2
 import numpy as np
-
+from util import openFlirCamera
 
 def mouse_callback(event, x, y, flags, param):
     # cv.EVENT_LBUTTONDOWN表示鼠标左键向下点击一下
@@ -62,13 +62,14 @@ def show_ploy(img, ploy):
     cv2.destroyAllWindows()
 
 # cap = cv2.VideoCapture(0)
-# ret, frame = cap.read()
-# cap.release()
-# obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
-
-frame = cv2.imread("../image/1.jpg")
+cap = openFlirCamera()
+ret, frame = cap.read()
+frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+frame = cv2.resize(frame, (1920, 1080))
+cap.release()
 obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
-inflation_radius = 7  # 障碍物膨胀半径
+# img = cv2.imread("../image/3.png")
+inflation_radius = 15  # 障碍物膨胀半径
 grid_size = 2.0  # 网格大小
 ploy = get_ploy_points(frame)
 # ploy 获取为图像坐标系

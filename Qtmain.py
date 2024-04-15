@@ -33,6 +33,7 @@ class VideoThread(QThread):
         self.cap = openFlirCamera()
         self.robot = robot
         self.frame = None
+
         self.frame_width, self.frame_height = frame_width, frame_height
 
     def run(self):
@@ -121,7 +122,7 @@ class MainWindow(QWidget):
 
         # f, beta, B edit初始化
         self.f_edit = self.ui.F_spinBox
-        self.f_edit.setValue(10)
+        self.f_edit.setValue(13)
         self.beta_edit = self.ui.beta_spinBox
         self.beta_edit.setValue(0)
         self.B_edit = self.ui.B_spinBox
@@ -136,7 +137,7 @@ class MainWindow(QWidget):
             self.ImgShowLabel, alignment=QtCore.Qt.AlignCenter
         )
         self.label_position.setStyleSheet('background-color: white; border: 1px solid black')
-        # 启动向目标前进的实时更新Flag
+        # 启动向鼠标点击的目标点前进的实时更新Flag
         self.update_flag = False
 
         # 机器人实际坐标 x,y 目标坐标mx my
@@ -150,13 +151,12 @@ class MainWindow(QWidget):
         # cap = cv2.VideoCapture(0)
         cap = openFlirCamera()
         time.sleep(3)
-        self.frame_width, self.frame_height = 1920, 1080
+        self.frame_width, self.frame_height = 1080, 1080
         self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height)
         # PID 初始化
         ret, frame = cap.read()
         frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
-
         try:
             self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
         except Exception as e:
@@ -186,7 +186,7 @@ class MainWindow(QWidget):
         self.tracker.rightKeyPressed.connect(lambda: self.beta_edit.setValue(270))
 
         self.position_list = None
-        self.videoThread = VideoThread(self.robot)
+        self.videoThread = VideoThread(self.robot, frame_width=self.frame_width, frame_height=self.frame_height)
         self.videoThread.signal.connect(self.refreshShow)
         self.videoThread.start()
 
@@ -226,11 +226,16 @@ class MainWindow(QWidget):
 
     def startPID(self):
         print("START PID-----")
-        self.pid.x0 = self.robot.get_robot_position()[0]
-        self.pid.y0 = self.robot.get_robot_position()[1]
-        self.pid_t = 0
-        self.position_list = self.pid.plot_list()
+        try:
+            self.pid.x0 = self.robot.get_robot_position()[0]
+            self.pid.y0 = self.robot.get_robot_position()[1]
+            self.pid_t = 0
+            self.position_list = self.pid.plot_list()
+        except Exception as e:
+            print(f"PID: {e}")
+        print("----")
         self.update_pid()
+
         # 启动定时器
         self.pidTimer.start()
         self.daq.startDaq()
@@ -362,7 +367,7 @@ class MainWindow(QWidget):
     def update_pid(self):
         # self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
         try:
-            beta, B = self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
+            beta, B, f = self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
             self.beta_dial_edit.blockSignals(True)
             self.beta_edit.blockSignals(True)
             self.beta_edit.setValue(beta)
@@ -371,6 +376,7 @@ class MainWindow(QWidget):
             self.beta_dial_edit.blockSignals(False)
             self.beta_edit.blockSignals(False)
             self.B_edit.setValue(B)
+            self.f_edit.setValue(f)
             self.pid_t += 1
         except Exception as e:
             print(f"update_pid: {e}")

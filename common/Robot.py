@@ -72,8 +72,8 @@ class Robot:
         # cv2.putText(frame, "y : " + str(self.robot_position[1]), (100, 150),
         #             cv2.FONT_HERSHEY_SIMPLEX, 2.0, (50, 170, 50), 5)
 
-        for position in self.robot_img_position_list:
-            cv2.circle(frame, position, 5, (255, 0, 0), -1)
+        # for position in self.robot_img_position_list:
+        #     cv2.circle(frame, position, 5, (255, 0, 0), -1)
 
 
 

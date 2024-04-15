@@ -1,61 +1,40 @@
-import cv2
 import numpy as np
 
-def calculate_red_density(image, block_size):
-    # 将图像转换为 HSV 颜色空间
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+def generate_points(p1, p2, pixel_spacing):
+    # 将两个点转换为 numpy 数组
+    p1 = np.array(p1)
+    p2 = np.array(p2)
 
-    # 提取红色区域
-    lower_red = np.array([0, 100, 100])
-    upper_red = np.array([10, 255, 255])
-    mask1 = cv2.inRange(hsv, lower_red, upper_red)
+    # 计算直线的方向向量
+    direction_vector = p2 - p1
 
-    lower_red = np.array([160, 100, 100])
-    upper_red = np.array([179, 255, 255])
-    mask2 = cv2.inRange(hsv, lower_red, upper_red)
+    # 计算两点间的距离
+    distance = np.linalg.norm(direction_vector)
 
-    mask = cv2.bitwise_or(mask1, mask2)
+    # 计算总共需要生成的点数
+    num_points = int(distance / pixel_spacing) + 1
 
-    # 计算每个块内的红色像素密度
-    height, width = mask.shape[:2]
-    density_map = np.zeros((height // block_size, width // block_size), dtype=np.float32)
+    # 计算步长
+    step = direction_vector / (num_points - 1)
 
-    for i in range(0, height - block_size + 1, block_size):
-        for j in range(0, width - block_size + 1, block_size):
-            block = mask[i:i+block_size, j:j+block_size]
-            density_map[i // block_size, j // block_size] = np.mean(block)
+    # 生成坐标点
+    points = [p1]
+    for i in range(1, num_points - 1):
+        # 计算每个点的坐标
+        point = p1 + step * i
+        points.append(point)
+    points.append(p2)
 
-    return density_map
+    return points
 
-def identify_thrombus(density_map, density_threshold):
-    # 标记高密度区域为血栓区域
-    thrombus_mask = np.zeros_like(density_map, dtype=np.uint8)
-    thrombus_mask[density_map > density_threshold] = 255
+# 示例点
+point1 = (1, 2)
+point2 = (20, 66)
+pixel_spacing = 10
 
-    return thrombus_mask
+# 生成坐标点
+points = generate_points(point1, point2, pixel_spacing)
 
-# 读取图像
-image = cv2.imread('../image/cell.png')
-
-# 计算红色像素密度
-block_size = 5  # 设置块大小，可以根据图像尺寸和红色密度的预期范围进行调整
-red_density_map = calculate_red_density(image, block_size)
-
-# 识别血栓区域
-density_threshold = 5 # 设置红色密度阈值，可以根据实际情况进行调整
-thrombus_mask = identify_thrombus(red_density_map, density_threshold)
-
-# 显示结果
-cv2.imshow('Original Image', image)
-cv2.imshow('Red Density Map', (red_density_map / np.max(red_density_map) * 255).astype(np.uint8))
-thrombus_mask = cv2.resize(thrombus_mask,(1920, 1080))
-cv2.imshow('Thrombus Mask', thrombus_mask)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-
-# 读取图像
-# image = cv2.imread('../image/cell.png')
-
-
-
+# 打印生成的坐标点
+for point in points:
+    print(point)

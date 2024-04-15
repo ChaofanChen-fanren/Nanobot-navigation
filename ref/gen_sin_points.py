@@ -31,8 +31,8 @@ def generate_sin_wave(p1, p2, pixel_spacing, frequency=20, amplitude=30):
 
 # 示例点
 point1 = (1, 2)
-point2 = (150, 200)
-pixel_spacing = 2
+point2 = (300, 400)
+pixel_spacing = 5
 
 # 生成坐标点
 points = generate_sin_wave(point1, point2, pixel_spacing)
