@@ -2,7 +2,7 @@ import cv2
 
 
 class Robot:
-    def __init__(self, cap, frame_width, frame_height):
+    def __init__(self, cap, frame_width, frame_height, img_frame=None, contours=None):
         self.robot_position = None
         self.tracker = cv2.TrackerCSRT_create()
         self.robot_img_position_list = list()
@@ -12,6 +12,13 @@ class Robot:
         frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (frame_width, frame_height))
         # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
+
+        if img_frame is not None:
+            frame = cv2.addWeighted(frame, 0.1, img_frame, 0.9, 0)
+
+        if contours is not None:
+            cv2.drawContours(frame, contours, -1, (0, 0, 0), cv2.FILLED)
+
         if not ret:
             raise RuntimeError("Robot Constructor Error: Couldn't read the first frame.")
         self.fps = 0.0

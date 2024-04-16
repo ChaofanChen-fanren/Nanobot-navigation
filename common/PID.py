@@ -2,7 +2,6 @@ import math
 from .Astar import Astar
 from .Obstacle import Obstacle
 from util import get_ploy_points, get_start_goal, generate_points, generate_sin_wave, generate_circle_path, generate_square_path, generate_sin_path
-import cv2
 
 
 class PID:
@@ -40,9 +39,9 @@ class PID:
         self.last_Err_dm = 0
 
         # 通过Astar算法计算路径
-        # self.path_x_list, self.path_y_list = self.get_path(frame)
+        self.path_x_list, self.path_y_list = self.get_path(frame)
         # 获取给定路线
-        self.path_x_list, self.path_y_list = self.get_a_path()
+        # self.path_x_list, self.path_y_list = self.get_a_path()
         print(f"----len{len(self.path_x_list)}")
         self.index_path = 0
         self.is_arrived_dis = 10.0
@@ -81,11 +80,12 @@ class PID:
     def get_path(self, frame):
         # obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
         obstacle = Obstacle(weights_path="./unet.pth", frame=frame)
-        inflation_radius = 10  # 障碍物膨胀半径
-        grid_size = 5.0  # 网格大小
+        inflation_radius = 6  # 障碍物膨胀半径
+        robot_radius = 30  # 机器人的半径
+        grid_size = 4.0  # 网格大小
         ploy = get_ploy_points(frame)
         # ploy 获取为图像坐标系
-        astar = Astar(obstacle.obstacle_map, inflation_radius, grid_size, ploy=ploy)
+        astar = Astar(obstacle.obstacle_map, inflation_radius, robot_radius, grid_size, ploy=ploy)
         sx, sy, gx, gy, sin_x, sin_y = get_start_goal(frame)
         rx, ry = astar.planning(*astar.convert_coordinates(sx, sy), *astar.convert_coordinates(gx, gy))
         # 数组坐标系 转换为 机器人坐标系  数组-》图像-》机器人  路径是倒推

@@ -1,7 +1,8 @@
 import EasyPySpin
 import numpy as np
 import cv2
-
+from math import factorial
+from itertools import product
 
 def openFlirCamera():
     cap = EasyPySpin.VideoCapture(0)
@@ -158,3 +159,33 @@ def generate_sin_path(x0, y0, amplitude, period, step_size):
     x += x0
     y += y0
     return x, y
+
+
+def comb(n, k):
+    return factorial(n) // (factorial(k) * factorial(n-k))
+
+
+def get_bezier_curve(points):
+    n = len(points) - 1
+    return lambda t: sum(comb(n, i)*t**i * (1-t)**(n-i)*points[i] for i in range(n+1))
+
+
+def evaluate_bezier(points, total):
+    bezier = get_bezier_curve(points)
+    new_points = np.array([bezier(t) for t in np.linspace(0, 1, total)])
+    return new_points[:, 0], new_points[:, 1]
+
+
+def points_in_circle(radius):
+    for x, y in product(range(int(radius) + 1), repeat=2):
+        if x**2 + y**2 <= radius**2:
+            yield from set(((x, y), (x, -y), (-x, y), (-x, -y),))
+
+
+def get_contours(frame):
+    img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(img_gray, (7, 7), 1)
+    threshold1, threshold2 = 0, 255
+    img_canny = cv2.Canny(img_blur, threshold1, threshold2)
+    contours, hierarchy = cv2.findContours(img_canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    return contours

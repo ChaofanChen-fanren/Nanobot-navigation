@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal, QTimer, Qt
 from PyQt5.Qt import QApplication, QWidget, QThread
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore, QtWidgets, uic
-from util import openFlirCamera
+from util import openFlirCamera, get_contours
 
 
 class TextBrowserThread(QThread):
@@ -27,12 +27,14 @@ class VideoThread(QThread):
     # 实时显示追加线程（要继承QThread， 继承threading.Thread不行）
     signal = pyqtSignal()  # 信号
 
-    def __init__(self, robot, frame_width=1920, frame_height=1080):
+    def __init__(self, robot, frame_width=1920, frame_height=1080, img_frame=None, contours=None):
         super().__init__()
         # self.cap = cv2.VideoCapture(0)
         self.cap = openFlirCamera()
         self.robot = robot
         self.frame = None
+        self.img_frame = img_frame
+        self.contours = contours
 
         self.frame_width, self.frame_height = frame_width, frame_height
 
@@ -49,9 +51,15 @@ class VideoThread(QThread):
                 self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
                 # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
                 self.frame = cv2.resize(self.frame, (self.frame_width, self.frame_height))
+
+                if self.img_frame is not None:
+                    self.frame = cv2.addWeighted(self.frame, 0.1, self.img_frame, 0.9, 0)
+                if self.contours is not None:
+                    cv2.drawContours(self.frame, self.contours, -1, (0, 0, 0), cv2.FILLED)
                 # print("hhhh")
                 self.robot.process_frame(self.frame)
                 self.robot.show_robot_frame(self.frame)
+
                 # Retrieve and print the current robot position
                 # robot_position = self.robot.get_robot_position()
                 # print(f"Robot Position: {robot_position[0]}  {robot_position[1]}")
@@ -151,12 +159,15 @@ class MainWindow(QWidget):
         # cap = cv2.VideoCapture(0)
         cap = openFlirCamera()
         time.sleep(3)
+        frame = cv2.imread("./image/121.jpg")
         self.frame_width, self.frame_height = 1080, 1080
-        self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height)
-        # PID 初始化
-        ret, frame = cap.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
+        contours = get_contours(frame)
+        self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=contours)
+        # PID 初始化
+        # ret, frame = cap.read()
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        # frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         try:
             self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
         except Exception as e:
@@ -186,7 +197,7 @@ class MainWindow(QWidget):
         self.tracker.rightKeyPressed.connect(lambda: self.beta_edit.setValue(270))
 
         self.position_list = None
-        self.videoThread = VideoThread(self.robot, frame_width=self.frame_width, frame_height=self.frame_height)
+        self.videoThread = VideoThread(self.robot, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=contours)
         self.videoThread.signal.connect(self.refreshShow)
         self.videoThread.start()
 

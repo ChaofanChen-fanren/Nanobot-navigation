@@ -2,6 +2,7 @@ import math
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
+from util import evaluate_bezier, points_in_circle
 """
 Astar类
     original_obstacle_map：存储原始的障碍物地图
@@ -18,7 +19,7 @@ Astar类使用坐标系：数组的坐标系
 
 
 class Astar:
-    def __init__(self, obstacle_map, inflation_radius, resolution, ploy):
+    def __init__(self, obstacle_map, inflation_radius, robot_radius, resolution, ploy):
         self.original_obstacle_map = obstacle_map
         self.inflation_radius = inflation_radius
         # 膨胀障碍物，如果障碍物和网格之间的距离小，机器人无法通行，对障碍物膨胀
@@ -48,6 +49,10 @@ class Astar:
         self.gx, self.gy = None, None
         self.rx, self.ry = None, None  # 记录最终的路径的x坐标和y坐标
         self.searched_points = []
+
+        # 半径碰撞 circle_check_collision
+        self.robot_radius = robot_radius
+        self.cir_points = list(points_in_circle(self.robot_radius / self.resolution))
 
     # 获取机器人的运动模型
     @staticmethod
@@ -255,6 +260,14 @@ class Astar:
                     is_in = not is_in
         return is_in
 
+    def circle_check_collision(self, x, y):
+        for dx, dy in self.cir_points:
+            x0, y0 = x + dx, y + dy
+            if 0 <= x0 < self.x_width and 0 <= y0 < self.y_width:
+                if self.obstacle_map[x0][y0]:
+                    return True
+        return False
+
     # 邻居节点是否超出范围
     def verify_node(self, node):
         # 根据网格坐标计算实际坐标
@@ -275,6 +288,9 @@ class Astar:
         # 节点是否在障碍物上，障碍物标记为True
         if self.obstacle_map[node.x][node.y]:
             return False
+        if self.circle_check_collision(node.x, node.y):
+            return False
+
         # 没超过就返回True
         return True
 
@@ -292,49 +308,11 @@ class Astar:
             ry.append(self.calc_position(n.y, self.min_y))  # 节点的y坐标
             parent_index = n.parent_index  # 节点的父节点索引
 
-        # TODO 简化路径
-        # simpler_points = [(x, y) for x, y in zip(rx, ry)]
-        # simpler_points = self.simplify_path(simpler_points)
-        # rx = [point[0] for point in simpler_points]
-        # ry = [point[1] for point in simpler_points]
+        self.pre_rx, self.pre_ry = rx, ry
+        # 曲线平滑
+        bezier_points = np.array([(x, y) for x, y in zip(rx, ry)])
+        rx, ry = evaluate_bezier(bezier_points, len(bezier_points) * 1)
         return rx, ry
-
-    # 计算两点间的斜率，如果斜率不存在（即垂直），返回None
-    @staticmethod
-    def simplify_path(points):
-        def slope(p1, p2):
-            if p1[0] == p2[0]:  # x坐标相同，斜率不存在
-                return None
-            return (p2[1] - p1[1]) / (p2[0] - p1[0])
-
-        simplified = [points[0]]  # 从起点开始
-        i = 0
-        while i < len(points) - 2:
-            start = points[i]
-            middle = points[i + 1]
-            end = points[i + 2]
-
-            # 计算斜率
-            slope_start_middle = slope(start, middle)
-            slope_middle_end = slope(middle, end)
-
-            # 检查连续三点是否共线且斜率为0或不存在
-            if slope_start_middle == slope_middle_end and (slope_start_middle == 0 or slope_start_middle is None):
-                # 跳过中间点
-                i += 1
-                while i + 2 < len(points) and slope(points[i], points[i + 1]) == slope(points[i + 1],
-                                                                                       points[i + 2]) and (
-                        slope(points[i], points[i + 1]) == 0 or slope(points[i], points[i + 1]) is None):
-                    i += 1
-                simplified.append(points[i + 1])  # 添加共线的最后一个点
-                i += 2  # 继续检查下一个点集
-            else:
-                simplified.append(middle)  # 如果不共线，添加中间点
-                i += 1
-
-        if simplified[-1] != points[-1]:  # 确保终点被添加
-            simplified.append(points[-1])
-        return simplified
 
     # 数组坐标系->图像坐标系或者图像坐标系->数组坐标系
     @staticmethod
@@ -342,9 +320,10 @@ class Astar:
         return y, x
 
     # 绘画所有搜索过的(节点)、(路径)、(障碍物图像)
-    def show_animation(self):
+    def show_animation(self, frame):
         plt.cla()
-        plt.imshow(self.original_obstacle_map, cmap='gray')
+        # plt.imshow(self.original_inflate_obstacle_map, cmap='gray')
+        plt.imshow(frame, cmap="gray")
         plt.plot(self.sy, self.sx, 'og')  # 起点绿色
         plt.plot(self.gy, self.gx, 'xb')  # 终点蓝色
         # # 显示所有搜索过的节点
@@ -353,7 +332,8 @@ class Astar:
         #     plt.plot(self.calc_position(point.y, self.min_y),
         #              self.calc_position(point.x, self.min_x), 'xc')
         # 显示最终路径
-        plt.plot(self.ry, self.rx, '-r')
+        plt.plot(self.ry[::12], self.rx[::12], '--r', markersize=3)
+        plt.plot(self.pre_ry[::4], self.pre_rx[::4], '-g', markersize=2)
         plt.show()
 
 
