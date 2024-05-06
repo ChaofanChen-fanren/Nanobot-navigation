@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from math import factorial
 from itertools import product
+from scipy.spatial.transform import Rotation as Rot
 
 def openFlirCamera():
     cap = EasyPySpin.VideoCapture(0)
@@ -63,8 +64,8 @@ def get_start_goal(frame):
     cv2.setMouseCallback("select point", mouse_callback, param=param)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    start_ponint, end_point, sin_point = param[2:5]
-    return start_ponint[0], start_ponint[1], end_point[0], end_point[1], sin_point[0], sin_point[1]
+    start_ponint, end_point, sin_point = param[2:4]
+    return start_ponint[0], start_ponint[1], end_point[0], end_point[1]
 
 
 
@@ -189,3 +190,24 @@ def get_contours(frame):
     img_canny = cv2.Canny(img_blur, threshold1, threshold2)
     contours, hierarchy = cv2.findContours(img_canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     return contours
+
+
+def rot_mat_2d(angle):
+    """
+    Create 2D rotation matrix from an angle
+
+    Parameters
+    ----------
+    angle :
+
+    Returns
+    -------
+    A 2D rotation matrix
+
+    Examples
+    --------
+    # >>> angle_mod(-4.0)
+
+
+    """
+    return Rot.from_euler('z', angle).as_matrix()[0:2, 0:2]

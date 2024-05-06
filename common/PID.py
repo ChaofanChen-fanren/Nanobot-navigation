@@ -2,6 +2,7 @@ import math
 from .Astar import Astar
 from .Obstacle import Obstacle
 from util import get_ploy_points, get_start_goal, generate_points, generate_sin_wave, generate_circle_path, generate_square_path, generate_sin_path
+from Thrombus import Thrombus
 
 
 class PID:
@@ -86,7 +87,7 @@ class PID:
         ploy = get_ploy_points(frame)
         # ploy 获取为图像坐标系
         astar = Astar(obstacle.obstacle_map, inflation_radius, robot_radius, grid_size, ploy=ploy)
-        sx, sy, gx, gy, sin_x, sin_y = get_start_goal(frame)
+        sx, sy, gx, gy = get_start_goal(frame)
         rx, ry = astar.planning(*astar.convert_coordinates(sx, sy), *astar.convert_coordinates(gx, gy))
         # 数组坐标系 转换为 机器人坐标系  数组-》图像-》机器人  路径是倒推
         rx, ry = rx[::-1], ry[::-1]
@@ -101,12 +102,18 @@ class PID:
             ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=ky, y=kx)
             path_x_list.append(ix)
             path_y_list.append(iy)
-        sin_points = generate_sin_wave(self.imgxy2robotxy(frame.shape[0], x=ry[-1], y=rx[-1]),
-                                       self.imgxy2robotxy(frame.shape[0], x=sin_x, y=sin_y), pixel_spacing=5)
-        for point in sin_points:
-            path_x_list.append(point[0])
-            path_y_list.append(point[1])
-        return path_x_list[::10], path_y_list[::10]
+
+        # 添加通血栓(thrombus)路径
+        thrombus = Thrombus(weights_path="./best_thrombus_model.pth", frame=frame)
+        px, py = thrombus.get_px_py()
+
+        path_x_list, path_y_list = path_x_list[::10], path_y_list[::10]
+        for kx, ky in zip(px, py):
+            ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=ky, y=kx)
+            path_x_list.append(ix)
+            path_y_list.append(iy)
+
+        return path_x_list, path_y_list
 
     def GetCalcuValue(self, t):
         # x = self.x0 + t
