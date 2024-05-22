@@ -312,6 +312,7 @@ class Astar:
         # 曲线平滑
         bezier_points = np.array([(x, y) for x, y in zip(rx, ry)])
         rx, ry = evaluate_bezier(bezier_points, len(bezier_points) * 1)
+        # return self.pre_rx, self.pre_ry
         return rx, ry
 
     # 数组坐标系->图像坐标系或者图像坐标系->数组坐标系

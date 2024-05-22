@@ -37,7 +37,7 @@ class Obstacle(object):
             self.frame = cv2.imread(self.img_path)
         else:
             self.frame = frame
-        self.obstacle_map = self.process_image(frame)
+        self.obstacle_map = self.process_image(self.frame)
         # self.assemble = 3 * np.array([
         #     [-1, -1],
         #     [0, 2],
@@ -126,5 +126,10 @@ class Obstacle(object):
 
 
 
-
+if __name__ == "__main__":
+    obstacle = Obstacle(weights_path="../unet.pth", image_path="../image/901.png")
+    img = obstacle.show_viz_img()
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
+    # thrombus.show_thrombus_shape()
 

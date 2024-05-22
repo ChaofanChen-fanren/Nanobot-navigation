@@ -135,6 +135,8 @@ class MainWindow(QWidget):
         self.beta_edit.setValue(0)
         self.B_edit = self.ui.B_spinBox
         self.B_edit.setValue(0)
+        self.alpha_edit = self.ui.alpha_spinBox
+        self.B_edit.setValue(90)
         self.beta_dial_edit = self.ui.beta_dial
         self.beta_dial_edit.setValue(0)
         # 打印调试信息的textBrower
@@ -158,18 +160,20 @@ class MainWindow(QWidget):
         self.daq = DAQ(['Dev1/ao0', 'Dev1/ao1', 'Dev1/ao2'])
         # cap = cv2.VideoCapture(0)
         cap = openFlirCamera()
-        time.sleep(3)
-        frame = cv2.imread("./image/121.jpg")
+        time.sleep(1)
+        # frame = cv2.imread("./image/333.png")
         self.frame_width, self.frame_height = 1080, 1080
-        frame = cv2.resize(frame, (self.frame_width, self.frame_height))
-        contours = get_contours(frame)
-        self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=contours)
-        # PID 初始化
-        # ret, frame = cap.read()
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         # frame = cv2.resize(frame, (self.frame_width, self.frame_height))
+        # contours = get_contours(frame)
+        # self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=contours)
+        self.robot = Robot(cap, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=None)
+
+        # PID 初始化
+        ret, frame = cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         try:
-            self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1])
+            self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1], contours=None)
         except Exception as e:
             print(f"PID------: {e}")
 
@@ -187,6 +191,7 @@ class MainWindow(QWidget):
         self.beta_dial_edit.valueChanged.connect(self.beta_dial_changed)
         self.robot_mx_edit.valueChanged.connect(self.robot_mx_changed)
         self.robot_my_edit.valueChanged.connect(self.robot_my_changed)
+        self.alpha_edit.valueChanged.connect(self.alpha_changed)
 
         self.tracker = MouseKeyTracker(self.ImgShowLabel)
         self.tracker.positionChanged.connect(self.mousePositionChanged)
@@ -197,7 +202,7 @@ class MainWindow(QWidget):
         self.tracker.rightKeyPressed.connect(lambda: self.beta_edit.setValue(270))
 
         self.position_list = None
-        self.videoThread = VideoThread(self.robot, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=contours)
+        self.videoThread = VideoThread(self.robot, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=None)
         self.videoThread.signal.connect(self.refreshShow)
         self.videoThread.start()
 
@@ -270,6 +275,11 @@ class MainWindow(QWidget):
         self.beta_dial_edit.blockSignals(True)
         self.beta_dial_edit.setValue(num)
         self.beta_dial_edit.blockSignals(False)
+
+    def alpha_changed(self):
+        num = self.alpha_edit.value()
+        print("alpha:", num)
+        self.daq.set_alpha(num)
 
     def B_changed(self):
         num = self.B_edit.value()
@@ -378,7 +388,7 @@ class MainWindow(QWidget):
     def update_pid(self):
         # self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
         try:
-            beta, B, f = self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
+            B, f, alpha, beta = self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
             self.beta_dial_edit.blockSignals(True)
             self.beta_edit.blockSignals(True)
             self.beta_edit.setValue(beta)
@@ -388,6 +398,7 @@ class MainWindow(QWidget):
             self.beta_edit.blockSignals(False)
             self.B_edit.setValue(B)
             self.f_edit.setValue(f)
+            self.alpha_edit.setValue(alpha)
             self.pid_t += 1
         except Exception as e:
             print(f"update_pid: {e}")

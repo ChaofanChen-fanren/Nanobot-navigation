@@ -69,6 +69,7 @@ class Robot:
             raise RuntimeError("Robot Tracking Running Error: Robot Tracking failure detected.")
 
     def show_robot_frame(self, frame):
+        # pass
         # Display Tracking object bbox
         cv2.rectangle(frame, (int(self.bbox[0]), int(self.bbox[1])),
                       (int(self.bbox[0] + self.bbox[2]), int(self.bbox[1] + self.bbox[3])), (255, 0, 0), 2, 1)

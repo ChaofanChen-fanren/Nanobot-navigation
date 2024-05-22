@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import torch
 from Unet import UNet
 import numpy as np
@@ -263,8 +264,10 @@ class Thrombus(object):
         self.model.load_state_dict(torch.load(weights_path, map_location='cpu')['model'])
         self.model.to(self.device)
 
-        mean = (0.541, 0.601, 0.692)
-        std = (0.096, 0.108, 0.142)
+        # mean = (0.541, 0.601, 0.692)
+        # std = (0.096, 0.108, 0.142)
+        mean = (0.55830619, 0.58663033, 0.63069776)
+        std = (0.08065119, 0.08710265, 0.10377649)
         # from pil image to tensor and normalize
         self.data_transform = transforms.Compose([transforms.ToTensor(),
                                                   transforms.Normalize(mean=mean, std=std)])
@@ -278,9 +281,9 @@ class Thrombus(object):
         self.thrombus_ploy = self.process_image()
 
         # 覆盖算法
-        self.ox, self.oy = None, None
-        self.resolution = 30
-        self.px, self.py = self.get_cover_planning()
+        # self.ox, self.oy = None, None
+        # self.resolution = 30
+        # self.px, self.py = self.get_cover_planning()
 
     """
     返回最大面积的血栓
@@ -303,7 +306,7 @@ class Thrombus(object):
                 ploy.append(approx.reshape(-1, 2))
                 print(f"血栓的形状为：{len(approx)}多边形")
 
-        return ploy[0]
+        return ploy
 
     def process_image(self):
         # load image
@@ -322,6 +325,7 @@ class Thrombus(object):
             prediction = output['out'].argmax(1).squeeze(0)
             pred_mask = prediction.to("cpu").numpy().astype(np.uint8)
         np.expand_dims(pred_mask * 255, axis=2)
+        self.pred_mask = pred_mask
 
         ploy = self.get_thrombus_ploy(pred_mask)
 
@@ -337,10 +341,12 @@ class Thrombus(object):
 
     def show_thrombus_shape(self):
         show_frame = self.frame.copy()
-        show_frame = cv2.polylines(show_frame, [self.thrombus_ploy],
-                                   isClosed=True, color=(0, 0, 255), thickness=10)
-        cv2.imshow("thrombus_ploy", show_frame)
-        cv2.waitKey(0)
+        # show_frame = cv2.polylines(show_frame, [self.thrombus_ploy],
+        #                            isClosed=True, color=(0, 0, 255), thickness=10)
+        # cv2.imshow("thrombus_ploy", show_frame)
+        plt.imshow(self.pred_mask)
+        plt.show()
+        # cv2.waitKey(0)
 
     def get_px_py(self):
         return self.px, self.py
@@ -373,5 +379,6 @@ class Thrombus(object):
 
 
 if __name__ == "__main__":
-    thrombus = Thrombus(weights_path="../best_thrombus_model.pth", image_path="../image/130.jpg")
-    thrombus.show_animation()
+    thrombus = Thrombus(weights_path="../best_thrombus_2_model.pth", image_path="../image/52.jpg")
+    # thrombus.show_animation()
+    thrombus.show_thrombus_shape()
