@@ -6,6 +6,7 @@ __pycache__/
 
 .ipynb_checkpoints
 best_thrombus_model.pth
+best_thrombus_2_model.pth
 
 # https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
 # General
