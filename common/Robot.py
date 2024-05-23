@@ -4,13 +4,18 @@ import cv2
 class Robot:
     def __init__(self, cap, frame_width, frame_height, img_frame=None, contours=None):
         self.robot_position = None
-        self.tracker = cv2.TrackerCSRT_create()
+        # self.tracker = cv2.TrackerCSRT_create()
+        params = cv2.TrackerVit_Params()
+        params.net = "./common/object_tracking_vittrack_2023sep.onnx"
+        self.tracker = cv2.TrackerVit_create(params)
         self.robot_img_position_list = list()
 
         # Read the first frame
-        ret, frame = cap.read()
+        self.cap = cap
+        ret, frame = self.cap.read()
+        self.frame_width, self.frame_height = frame_width, frame_height
         frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
-        frame = cv2.resize(frame, (frame_width, frame_height))
+        frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
 
         if img_frame is not None:
@@ -39,6 +44,19 @@ class Robot:
     def imgxy2robotxy(img_height, x, y):
         return x, img_height - y
 
+    def init_tracker_bbox(self):
+        ret, frame = self.cap.read()
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.resize(frame, (self.frame_width, self.frame_height))
+        self.bbox = cv2.selectROI("Select ROI: Box Select the object you want to track", frame, True)
+        cv2.destroyAllWindows()
+        self.tracker.init(frame, self.bbox)
+
+        # Initialize robot_position based on bbox center
+        x = int(self.bbox[0] + self.bbox[2] / 2)
+        y = int(self.bbox[1] + self.bbox[3] / 2)
+        self.robot_position = self.imgxy2robotxy(frame.shape[0], x, y)
+
     def __del__(self):
         pass
 
@@ -63,7 +81,6 @@ class Robot:
             y = int(self.bbox[1] + self.bbox[3] / 2)
             self.robot_position = self.imgxy2robotxy(frame.shape[0], x, y)
             self.robot_img_position_list.append((x, y))
-
         else:
             # Tracking failure detected
             raise RuntimeError("Robot Tracking Running Error: Robot Tracking failure detected.")

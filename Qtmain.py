@@ -91,6 +91,7 @@ class MouseKeyTracker(QtCore.QObject):
     downKeyPressed = QtCore.pyqtSignal()
     leftKeyPressed = QtCore.pyqtSignal()
     rightKeyPressed = QtCore.pyqtSignal()
+    spaceKeyPressed = QtCore.pyqtSignal()
 
     def __init__(self, widget):
         super().__init__(widget)
@@ -119,6 +120,8 @@ class MouseKeyTracker(QtCore.QObject):
                     self.leftKeyPressed.emit()
                 elif key == Qt.Key_Right:
                     self.rightKeyPressed.emit()
+                elif key == Qt.Key_Space:
+                    self.spaceKeyPressed.emit()
 
         return super().eventFilter(o, e)
 
@@ -136,7 +139,7 @@ class MainWindow(QWidget):
         self.B_edit = self.ui.B_spinBox
         self.B_edit.setValue(0)
         self.alpha_edit = self.ui.alpha_spinBox
-        self.B_edit.setValue(90)
+        self.alpha_edit.setValue(90)
         self.beta_dial_edit = self.ui.beta_dial
         self.beta_dial_edit.setValue(0)
         # 打印调试信息的textBrower
@@ -200,6 +203,7 @@ class MainWindow(QWidget):
         self.tracker.downKeyPressed.connect(lambda: self.beta_edit.setValue(0))
         self.tracker.leftKeyPressed.connect(lambda: self.beta_edit.setValue(90))
         self.tracker.rightKeyPressed.connect(lambda: self.beta_edit.setValue(270))
+        self.tracker.spaceKeyPressed.connect(self.spaceKeyPressed)
 
         self.position_list = None
         self.videoThread = VideoThread(self.robot, frame_width=self.frame_width, frame_height=self.frame_height, img_frame=None, contours=None)
@@ -385,6 +389,20 @@ class MainWindow(QWidget):
         self.robot_mx_edit.blockSignals(False)
         self.robot_my_edit.blockSignals(False)
 
+    @QtCore.pyqtSlot()
+    def spaceKeyPressed(self):
+        print("space key 被按下！重新选择你要追踪的框")
+        # 关闭 pid 和 daq
+        print("daq stop, pid stop")
+        self.pidTimer.stop()
+        self.daq.stopDaq()
+        self.robot.init_tracker_bbox()
+        # 启动 pid 和 daq
+        self.pidTimer.start()
+        self.daq.startDaq()
+        self.daq.start()
+
+
     def update_pid(self):
         # self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
         try:
@@ -400,6 +418,7 @@ class MainWindow(QWidget):
             self.f_edit.setValue(f)
             self.alpha_edit.setValue(alpha)
             self.pid_t += 1
+            print("pid update ：", self.pid_t)
         except Exception as e:
             print(f"update_pid: {e}")
 
