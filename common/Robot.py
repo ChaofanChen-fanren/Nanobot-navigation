@@ -14,7 +14,7 @@ class Robot:
         self.cap = cap
         ret, frame = self.cap.read()
         self.frame_width, self.frame_height = frame_width, frame_height
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
 
@@ -46,7 +46,7 @@ class Robot:
 
     def init_tracker_bbox(self):
         ret, frame = self.cap.read()
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         self.bbox = cv2.selectROI("Select ROI: Box Select the object you want to track", frame, True)
         cv2.destroyAllWindows()

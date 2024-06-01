@@ -28,8 +28,8 @@ class VideoThread(QThread):
 
     def __init__(self, robot, frame_width=1920, frame_height=1080, img_frame=None, contours=None):
         super().__init__()
-        self.cap = cv2.VideoCapture(0)
-        # self.cap = openFlirCamera()
+        # self.cap = cv2.VideoCapture(0)
+        self.cap = openFlirCamera()
         self.robot = robot
         self.frame = None
         self.img_frame = img_frame
@@ -52,7 +52,7 @@ class VideoThread(QThread):
                     print("Failed to grab frame")
                     break
 
-                # self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+                self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
                 self.frame = cv2.resize(self.frame, (self.frame_width, self.frame_height))
                 if self.img_frame is not None:
                     self.frame = cv2.addWeighted(self.frame, 0.1, self.img_frame, 0.9, 0)
@@ -118,15 +118,11 @@ class MainWindow(QWidget):
 
         # f, beta, B edit初始化
         self.f_edit = self.ui.F_spinBox
-        self.f_edit.setValue(13)
         self.beta_edit = self.ui.beta_spinBox
-        self.beta_edit.setValue(0)
         self.B_edit = self.ui.B_spinBox
-        self.B_edit.setValue(0)
         self.alpha_edit = self.ui.alpha_spinBox
-        self.alpha_edit.setValue(90)
         self.beta_dial_edit = self.ui.beta_dial
-        self.beta_dial_edit.setValue(0)
+
         # 打印调试信息的textBrower
         self.textBrowser = self.ui.textBrowser
         self.ImgShowLabel = self.ui.ImgShow
@@ -142,8 +138,8 @@ class MainWindow(QWidget):
         self.robot_x = self.ui.x_label
         self.robot_y = self.ui.y_label
         self.daq = DAQ(['Dev1/ao0', 'Dev1/ao1', 'Dev1/ao2'])
-        cap = cv2.VideoCapture(0)
-        # cap = openFlirCamera()
+        # cap = cv2.VideoCapture(0)
+        cap = openFlirCamera()
         time.sleep(1)
         # frame = cv2.imread("./image/333.png")
         self.frame_width, self.frame_height = 1080, 1080
@@ -154,7 +150,7 @@ class MainWindow(QWidget):
 
         # PID 初始化
         ret, frame = cap.read()
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         cap.release()
         try:
@@ -176,6 +172,11 @@ class MainWindow(QWidget):
         self.B_edit.valueChanged.connect(self.B_changed)
         self.beta_dial_edit.valueChanged.connect(self.beta_dial_changed)
         self.alpha_edit.valueChanged.connect(self.alpha_changed)
+        self.f_edit.setValue(13)
+        self.beta_edit.setValue(0)
+        self.B_edit.setValue(0)
+        self.alpha_edit.setValue(90)
+        self.beta_dial_edit.setValue(0)
 
         self.tracker = MouseKeyTracker(self.ImgShowLabel)
         self.tracker.positionChanged.connect(self.mousePositionChanged)
