@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
-    <height>325</height>
+    <width>934</width>
+    <height>271</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,11 +16,34 @@
   <widget class="QPushButton" name="StartButton">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>260</y>
-     <width>91</width>
-     <height>31</height>
+     <x>280</x>
+     <y>220</y>
+     <width>121</width>
+     <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+	padding-right: 20px;
+    padding-top: 0px;
+ 
+    background:#6DDF6D;
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
    </property>
    <property name="text">
     <string>Start</string>
@@ -29,11 +52,34 @@
   <widget class="QPushButton" name="StopButton">
    <property name="geometry">
     <rect>
-     <x>460</x>
-     <y>260</y>
-     <width>91</width>
-     <height>31</height>
+     <x>400</x>
+     <y>220</y>
+     <width>131</width>
+     <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+	padding-right: 20px;
+    padding-top: 0px;
+ 
+    background:#F76677;
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
    </property>
    <property name="text">
     <string>Stop</string>
@@ -42,8 +88,8 @@
   <widget class="QTextBrowser" name="daq_textBrowser">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>40</y>
+     <x>10</x>
+     <y>10</y>
      <width>271</width>
      <height>251</height>
     </rect>
@@ -52,10 +98,10 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>330</x>
-     <y>70</y>
-     <width>261</width>
-     <height>171</height>
+     <x>290</x>
+     <y>10</y>
+     <width>221</width>
+     <height>211</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -75,7 +121,17 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="F_Edit"/>
+       <widget class="QSpinBox" name="F_spinBox">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>300</number>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer">
@@ -97,12 +153,22 @@
       <item>
        <widget class="QLabel" name="beta_label">
         <property name="text">
-         <string>beta：</string>
+         <string>beta： </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="beta_Edit"/>
+       <widget class="QSpinBox" name="beta_spinBox">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>365</number>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer_2">
@@ -119,7 +185,97 @@
       </item>
      </layout>
     </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="alpha_label">
+        <property name="text">
+         <string>alpha：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="alpha_spinBox">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>365</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>100</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="B_label">
+        <property name="text">
+         <string>B    ：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="B_spinBox">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>100</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
    </layout>
+  </widget>
+  <widget class="QDial" name="beta_dial">
+   <property name="geometry">
+    <rect>
+     <x>600</x>
+     <y>20</y>
+     <width>251</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>365</number>
+   </property>
+   <property name="wrapping">
+    <bool>true</bool>
+   </property>
+   <property name="notchesVisible">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

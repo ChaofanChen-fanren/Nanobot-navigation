@@ -249,7 +249,7 @@ class MainWindow(QWidget):
         num = self.f_edit.value()
         print("f:", num)
         self.daq.set_f(num)
-        self.pid.set_f(num)
+        # self.pid.set_f(num)
 
     def beta_changed(self):
         num = self.beta_edit.value()

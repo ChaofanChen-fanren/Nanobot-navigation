@@ -263,6 +263,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:#6DDF6D;
@@ -330,6 +331,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:#F76677;
@@ -674,7 +676,7 @@
      <x>1110</x>
      <y>480</y>
      <width>1121</width>
-     <height>71</height>
+     <height>72</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -705,6 +707,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:#6DDF6D;
@@ -763,6 +766,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:#F76677;
@@ -817,6 +821,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:rgb(85, 85, 255);
@@ -874,6 +879,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:rgb(85, 85, 255);
@@ -931,6 +937,7 @@
     border-radius: 20px;
  
     padding-left: 20px;
+	padding-right: 20px;
     padding-top: 0px;
  
     background:rgb(85, 85, 255);

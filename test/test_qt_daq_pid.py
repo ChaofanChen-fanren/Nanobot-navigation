@@ -371,7 +371,6 @@ class MainWindow(QWidget):
         self.daq.run_old()
 
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     Window = MainWindow()
