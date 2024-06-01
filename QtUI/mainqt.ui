@@ -6,24 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2615</width>
-    <height>1200</height>
+    <width>2238</width>
+    <height>1157</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color:#1e1d23;</string>
+  </property>
   <widget class="QLabel" name="ImgShow">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>1920</width>
+     <x>10</x>
+     <y>30</y>
+     <width>1080</width>
      <height>1080</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(0, 0, 0, 125);</string>
+    <string notr="true">color: #a9b7c6;</string>
    </property>
    <property name="text">
     <string>TextLabel</string>
@@ -32,9 +35,9 @@
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>1970</x>
-     <y>250</y>
-     <width>301</width>
+     <x>1110</x>
+     <y>350</y>
+     <width>541</width>
      <height>111</height>
     </rect>
    </property>
@@ -43,23 +46,39 @@
      <widget class="QLabel" name="beta_label">
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>13</pointsize>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
       <property name="text">
-       <string>旋转角度β:</string>
+       <string>Deflection Angle β:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QSpinBox" name="beta_spinBox">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <pointsize>15</pointsize>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">	color: #a9b7c6;	
+	background-color: #1e1d23;</string>
       </property>
       <property name="maximum">
        <number>365</number>
@@ -71,9 +90,9 @@
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>1970</x>
-     <y>150</y>
-     <width>301</width>
+     <x>1110</x>
+     <y>140</y>
+     <width>541</width>
      <height>101</height>
     </rect>
    </property>
@@ -82,23 +101,39 @@
      <widget class="QLabel" name="B_label">
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>13</pointsize>
+        <family>Arial</family>
+        <pointsize>10</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
       <property name="text">
-       <string>磁场强度B :</string>
+       <string> Magnetic Strength H :</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QSpinBox" name="B_spinBox">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <pointsize>15</pointsize>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">	color: #a9b7c6;	
+	background-color: #1e1d23;</string>
       </property>
      </widget>
     </item>
@@ -107,9 +142,9 @@
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>1970</x>
-     <y>50</y>
-     <width>301</width>
+     <x>1110</x>
+     <y>40</y>
+     <width>541</width>
      <height>101</height>
     </rect>
    </property>
@@ -118,14 +153,20 @@
      <widget class="QLabel" name="f_label">
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>13</pointsize>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
       <property name="text">
-       <string>频    率  f   :</string>
+       <string>  Frequency      F: </string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -134,74 +175,23 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
-      <property name="font">
-       <font>
-        <pointsize>15</pointsize>
-       </font>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_4">
-   <property name="geometry">
-    <rect>
-     <x>1960</x>
-     <y>770</y>
-     <width>571</width>
-     <height>59</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_4">
-    <item>
-     <widget class="QPushButton" name="StartButton">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>StartDAQ</string>
-      </property>
-      <property name="iconSize">
+      <property name="minimumSize">
        <size>
-        <width>50</width>
-        <height>16</height>
+        <width>200</width>
+        <height>0</height>
        </size>
       </property>
-     </widget>
-    </item>
-    <item>
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <widget class="QPushButton" name="StopButton">
       <property name="font">
        <font>
-        <family>微软雅黑</family>
         <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
        </font>
       </property>
-      <property name="text">
-       <string>StopDAQ</string>
+      <property name="styleSheet">
+       <string notr="true">	color: #a9b7c6;	
+	background-color: #1e1d23;</string>
+      </property>
+      <property name="maximum">
+       <number>300</number>
       </property>
      </widget>
     </item>
@@ -210,270 +200,23 @@
   <widget class="QTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
-     <x>1960</x>
+     <x>1110</x>
      <y>840</y>
-     <width>571</width>
-     <height>261</height>
+     <width>831</width>
+     <height>321</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QWidget" name="gridLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>1970</x>
-     <y>500</y>
-     <width>561</width>
-     <height>171</height>
-    </rect>
+   <property name="styleSheet">
+    <string notr="true">background:rgb(255, 255, 255)</string>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="2">
-     <widget class="QLabel" name="y_label">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>123</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="Line" name="line_5">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="Line" name="line_4">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="4">
-     <widget class="Line" name="line_12">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="4">
-     <widget class="Line" name="line_6">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="4">
-     <widget class="QSpinBox" name="y_spinBox">
-      <property name="font">
-       <font>
-        <pointsize>15</pointsize>
-       </font>
-      </property>
-      <property name="maximum">
-       <number>1080</number>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QLabel" name="x_label">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>123</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="4">
-     <widget class="QSpinBox" name="x_spinBox">
-      <property name="font">
-       <font>
-        <pointsize>15</pointsize>
-       </font>
-      </property>
-      <property name="maximum">
-       <number>1920</number>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QLabel" name="label_6">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>目标坐标</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
-      <item>
-       <widget class="QPushButton" name="Update_Button">
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Start</string>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>50</width>
-          <height>16</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="Unupdate_Button">
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Stop</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>RobotX:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="3">
-     <widget class="Line" name="line_9">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="Line" name="line_10">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="label_5">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>实际坐标</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="Line" name="line_3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>15</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>RobotY:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="Line" name="line_8">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3">
-     <widget class="Line" name="line_7">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="2">
-     <widget class="Line" name="line_11">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-   </layout>
   </widget>
   <widget class="QDial" name="beta_dial">
    <property name="geometry">
     <rect>
-     <x>2290</x>
-     <y>150</y>
-     <width>301</width>
-     <height>231</height>
+     <x>1710</x>
+     <y>90</y>
+     <width>491</width>
+     <height>361</height>
     </rect>
    </property>
    <property name="maximum">
@@ -489,22 +232,43 @@
   <widget class="QWidget" name="horizontalLayoutWidget_5">
    <property name="geometry">
     <rect>
-     <x>2000</x>
-     <y>690</y>
-     <width>481</width>
-     <height>51</height>
+     <x>1110</x>
+     <y>750</y>
+     <width>1121</width>
+     <height>91</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_6">
     <item>
      <widget class="QPushButton" name="StartPIDButton">
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>70</height>
+       </size>
+      </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
+        <family>Arial</family>
+        <pointsize>18</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:#6DDF6D;
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
       </property>
       <property name="text">
        <string>StartPID</string>
@@ -535,16 +299,52 @@
     </item>
     <item>
      <widget class="QPushButton" name="StopPIDButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>70</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
+        <family>Arial</family>
+        <pointsize>16</pointsize>
         <weight>75</weight>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:#F76677;
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
+      </property>
       <property name="text">
        <string>StopPID</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
       </property>
      </widget>
     </item>
@@ -553,9 +353,9 @@
   <widget class="QWidget" name="horizontalLayoutWidget_6">
    <property name="geometry">
     <rect>
-     <x>1970</x>
-     <y>360</y>
-     <width>301</width>
+     <x>1110</x>
+     <y>240</y>
+     <width>541</width>
      <height>111</height>
     </rect>
    </property>
@@ -564,23 +364,39 @@
      <widget class="QLabel" name="alpha_label">
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>13</pointsize>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
       <property name="text">
-       <string>旋转角度α:</string>
+       <string>Deflection Angle α:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QSpinBox" name="alpha_spinBox">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <pointsize>15</pointsize>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">	color: #a9b7c6;	
+	background-color: #1e1d23;</string>
       </property>
       <property name="maximum">
        <number>365</number>
@@ -588,6 +404,549 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QWidget" name="gridLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>1110</x>
+     <y>560</y>
+     <width>1121</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_5">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
+      <property name="text">
+       <string>Tracker_Nanorobot</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="Line" name="line_5">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="5">
+     <widget class="QLabel" name="y_label">
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>22</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(128, 64, 150, 255);</string>
+      </property>
+      <property name="text">
+       <string>123</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
+      <property name="text">
+       <string>Robot_X</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="Line" name="line_9">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="6">
+     <widget class="Line" name="line_6">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QLabel" name="label_2">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #a9b7c6;</string>
+      </property>
+      <property name="text">
+       <string>Robot_Y</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="Line" name="line_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="6">
+     <widget class="Line" name="line_10">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
+     <widget class="QLabel" name="x_label">
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>22</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(128, 64, 150, 255);</string>
+      </property>
+      <property name="text">
+       <string>123</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="5">
+     <widget class="Line" name="line_4">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="Line" name="line_7">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="Line" name="line_8">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="Line" name="line_11">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="Line" name="line_12">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3">
+     <widget class="Line" name="line_13">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="Line" name="line_14">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="Line" name="line_15">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="Line" name="line_16">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5">
+     <widget class="Line" name="line_17">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="f_label_2">
+   <property name="geometry">
+    <rect>
+     <x>1680</x>
+     <y>0</y>
+     <width>531</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: #a9b7c6;</string>
+   </property>
+   <property name="text">
+    <string>Direction Rod</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_4">
+   <property name="geometry">
+    <rect>
+     <x>1110</x>
+     <y>480</y>
+     <width>1121</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <item>
+     <widget class="QPushButton" name="StartButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>70</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:#6DDF6D;
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
+      </property>
+      <property name="text">
+       <string>StartDAQ</string>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="StopButton">
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>70</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:#F76677;
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
+      </property>
+      <property name="text">
+       <string>StopDAQ</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="show_tracking_path_Button">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>1940</x>
+     <y>1010</y>
+     <width>291</width>
+     <height>70</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>70</width>
+     <height>70</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>8</pointsize>
+     <weight>75</weight>
+     <italic>false</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:rgb(85, 85, 255);
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
+   </property>
+   <property name="text">
+    <string>Show Tracking Path</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="show_planned_path_Button">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>1940</x>
+     <y>850</y>
+     <width>291</width>
+     <height>70</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>70</width>
+     <height>70</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>8</pointsize>
+     <weight>75</weight>
+     <italic>false</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:rgb(85, 85, 255);
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
+   </property>
+   <property name="text">
+    <string>Show Planned Path</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="show_tracking_box_Button">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>1940</x>
+     <y>930</y>
+     <width>291</width>
+     <height>70</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>70</width>
+     <height>70</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>8</pointsize>
+     <weight>75</weight>
+     <italic>false</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">	border-style: solid;
+    border-width: 2px;
+    border-color: aqua;
+    border-radius: 20px;
+ 
+    padding-left: 20px;
+    padding-top: 0px;
+ 
+    background:rgb(85, 85, 255);
+    background-image: url(&quot;./image.png&quot;);
+    background-repeat: no-repeat;
+    background-position: left center;</string>
+   </property>
+   <property name="text">
+    <string>Show Tracking Box</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
   </widget>
  </widget>
  <resources/>

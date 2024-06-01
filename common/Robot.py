@@ -14,7 +14,7 @@ class Robot:
         self.cap = cap
         ret, frame = self.cap.read()
         self.frame_width, self.frame_height = frame_width, frame_height
-        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
         # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
 
@@ -85,20 +85,21 @@ class Robot:
             # Tracking failure detected
             raise RuntimeError("Robot Tracking Running Error: Robot Tracking failure detected.")
 
-    def show_robot_frame(self, frame):
+    def show_robot_frame(self, frame, show_tracking_path):
         # pass
         # Display Tracking object bbox
         cv2.rectangle(frame, (int(self.bbox[0]), int(self.bbox[1])),
                       (int(self.bbox[0] + self.bbox[2]), int(self.bbox[1] + self.bbox[3])), (255, 0, 0), 2, 1)
+
         # # Display x y
         # cv2.putText(frame, "x : " + str(self.robot_position[0]), (100, 80),
         #             cv2.FONT_HERSHEY_SIMPLEX, 2.0, (50, 170, 50), 5)
         #
         # cv2.putText(frame, "y : " + str(self.robot_position[1]), (100, 150),
         #             cv2.FONT_HERSHEY_SIMPLEX, 2.0, (50, 170, 50), 5)
-
-        # for position in self.robot_img_position_list:
-        #     cv2.circle(frame, position, 5, (255, 0, 0), -1)
+        if show_tracking_path:
+            for position in self.robot_img_position_list:
+                cv2.circle(frame, position, 5, (255, 0, 0), -1)
 
 
 

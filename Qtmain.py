@@ -1,6 +1,5 @@
 import sys
 import time
-import math
 import cv2
 from common import DAQ, PID, Robot
 from PyQt5.QtCore import pyqtSignal, QTimer, Qt
@@ -29,8 +28,8 @@ class VideoThread(QThread):
 
     def __init__(self, robot, frame_width=1920, frame_height=1080, img_frame=None, contours=None):
         super().__init__()
-        # self.cap = cv2.VideoCapture(0)
-        self.cap = openFlirCamera()
+        self.cap = cv2.VideoCapture(0)
+        # self.cap = openFlirCamera()
         self.robot = robot
         self.frame = None
         self.img_frame = img_frame
@@ -38,55 +37,43 @@ class VideoThread(QThread):
 
         self.frame_width, self.frame_height = frame_width, frame_height
 
+        # 是否展示机器人的位置
+        self.show_tracking_robot = True
+        self.show_tracking_path = False
+
     def run(self):
         # self.cap = cv2.VideoCapture(0)
-        self.cap = openFlirCamera()
+        # self.cap = openFlirCamera()
         try:
             while self.cap.isOpened():
+
                 ret, self.frame = self.cap.read()
                 if not ret:
                     print("Failed to grab frame")
                     break
 
-                self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
-                # frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
+                # self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
                 self.frame = cv2.resize(self.frame, (self.frame_width, self.frame_height))
-
                 if self.img_frame is not None:
                     self.frame = cv2.addWeighted(self.frame, 0.1, self.img_frame, 0.9, 0)
                 if self.contours is not None:
                     cv2.drawContours(self.frame, self.contours, -1, (0, 0, 0), cv2.FILLED)
-                # print("hhhh")
+
+                # 追踪机器人
                 self.robot.process_frame(self.frame)
-                self.robot.show_robot_frame(self.frame)
-
-                # Retrieve and print the current robot position
-                # robot_position = self.robot.get_robot_position()
-                # print(f"Robot Position: {robot_position[0]}  {robot_position[1]}")
-
-                # obstacles.find_all_obstacles(frame)
-                # # Retrieve and print the current robot position
-                # obstacles.show_all_obstacles(frame)
-
-                # Get robot show_frame for visualization
-                # cv2.imshow("img", self.frame)
-                # self.frame = cv2.resize(self.frame, (491, 341))
+                # 打印机器人
+                if self.show_tracking_robot:
+                    self.robot.show_robot_frame(self.frame, self.show_tracking_path)
                 self.signal.emit()
-                # print("ffff")
                 time.sleep(0.01)
-
-                # 等待按键，如果按下 'q' 键，就退出循环
-                # if cv2.waitKey(10) & 0xFF == ord('q'):
-                #     break
         except Exception as e:
             print(f"Exception in VideoThread: {e}")
-        self.cap.release()
-        print("video Release!!!!!")
+            self.cap.release()
+            print("video Release!!!!!")
 
 
 class MouseKeyTracker(QtCore.QObject):
     positionChanged = QtCore.pyqtSignal(QtCore.QPoint)
-    leftButtonClicked = QtCore.pyqtSignal(QtCore.QPoint)
     upKeyPressed = QtCore.pyqtSignal()
     downKeyPressed = QtCore.pyqtSignal()
     leftKeyPressed = QtCore.pyqtSignal()
@@ -108,8 +95,6 @@ class MouseKeyTracker(QtCore.QObject):
         if o is self.widget:
             if e.type() == QtCore.QEvent.MouseMove:
                 self.positionChanged.emit(e.pos())
-            elif e.type() == QtCore.QEvent.MouseButtonPress and e.button() == QtCore.Qt.LeftButton:
-                self.leftButtonClicked.emit(e.pos())
             elif e.type() == QtCore.QEvent.KeyPress:
                 key = e.key()
                 if key == Qt.Key_Up:
@@ -153,16 +138,12 @@ class MainWindow(QWidget):
         # 启动向鼠标点击的目标点前进的实时更新Flag
         self.update_flag = False
 
-        # 机器人实际坐标 x,y 目标坐标mx my
+        # 机器人实际坐标 x,y
         self.robot_x = self.ui.x_label
         self.robot_y = self.ui.y_label
-        self.robot_mx = 0
-        self.robot_my = 0
-        self.robot_mx_edit = self.ui.x_spinBox
-        self.robot_my_edit = self.ui.y_spinBox
         self.daq = DAQ(['Dev1/ao0', 'Dev1/ao1', 'Dev1/ao2'])
-        # cap = cv2.VideoCapture(0)
-        cap = openFlirCamera()
+        cap = cv2.VideoCapture(0)
+        # cap = openFlirCamera()
         time.sleep(1)
         # frame = cv2.imread("./image/333.png")
         self.frame_width, self.frame_height = 1080, 1080
@@ -173,8 +154,9 @@ class MainWindow(QWidget):
 
         # PID 初始化
         ret, frame = cap.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
         frame = cv2.resize(frame, (self.frame_width, self.frame_height))
+        cap.release()
         try:
             self.pid = PID(frame=frame, x0=self.robot.get_robot_position()[0], y0=self.robot.get_robot_position()[1], contours=None)
         except Exception as e:
@@ -183,22 +165,20 @@ class MainWindow(QWidget):
         # 给Start Stop个按钮绑定槽函数
         self.ui.StartButton.clicked.connect(self.startDaq)  # 绑定槽函数
         self.ui.StopButton.clicked.connect(self.stopDaq)  # 绑定槽函数
-        self.ui.Update_Button.clicked.connect(lambda: self.set_update_flag(True))
-        self.ui.Unupdate_Button.clicked.connect(lambda: self.set_update_flag(False))
         self.ui.StartPIDButton.clicked.connect(self.startPID)
         self.ui.StopPIDButton.clicked.connect(self.stopPID)
+        self.ui.show_planned_path_Button.clicked.connect(self.update_show_planned_path)
+        self.ui.show_tracking_box_Button.clicked.connect(self.update_show_tracking_box)
+        self.ui.show_tracking_path_Button.clicked.connect(self.update_show_tracking_path)
 
         self.f_edit.valueChanged.connect(self.f_changed)
         self.beta_edit.valueChanged.connect(self.beta_changed)
         self.B_edit.valueChanged.connect(self.B_changed)
         self.beta_dial_edit.valueChanged.connect(self.beta_dial_changed)
-        self.robot_mx_edit.valueChanged.connect(self.robot_mx_changed)
-        self.robot_my_edit.valueChanged.connect(self.robot_my_changed)
         self.alpha_edit.valueChanged.connect(self.alpha_changed)
 
         self.tracker = MouseKeyTracker(self.ImgShowLabel)
         self.tracker.positionChanged.connect(self.mousePositionChanged)
-        self.tracker.leftButtonClicked.connect(self.mousePositionPressed)
         self.tracker.upKeyPressed.connect(lambda: self.beta_edit.setValue(180))
         self.tracker.downKeyPressed.connect(lambda: self.beta_edit.setValue(0))
         self.tracker.leftKeyPressed.connect(lambda: self.beta_edit.setValue(90))
@@ -224,18 +204,17 @@ class MainWindow(QWidget):
         self.pidTimer.timeout.connect(self.update_pid)
 
         self.pid_t = 0
-        # # 创建一个定时器
-        # self.daqTimer = QTimer(self.ui)
-        # # 设置定时器的间隔时间（毫秒为单位）
-        # interval1 = 1  # 1秒
-        # self.daqTimer.setInterval(interval1)
-        # # 连接定时器的timeout信号到要执行的函数
-        # self.daqTimer.timeout.connect(self.update_daq)
-        # # 启动定时器
-        # self.daqTimer.start()
+        self.show_planned_path = False
+        self.position_list = self.pid.plot_list()
 
-    def set_update_flag(self, value):
-        self.update_flag = value
+    def update_show_tracking_box(self):
+        self.videoThread.show_tracking_robot = not self.videoThread.show_tracking_robot
+
+    def update_show_tracking_path(self):
+        self.videoThread.show_tracking_path = not self.videoThread.show_tracking_path
+
+    def update_show_planned_path(self):
+        self.show_planned_path = not self.show_planned_path
 
     def startDaq(self):
         self.daq.startDaq()
@@ -299,74 +278,33 @@ class MainWindow(QWidget):
         self.beta_edit.setValue(num)
         self.beta_edit.blockSignals(False)
 
-    def robot_mx_changed(self):
-        self.robot_mx = self.robot_mx_edit.value()
-
-    def robot_my_changed(self):
-        self.robot_my = self.robot_my_edit.value()
-
-    def update_second_beta(self):
-        if self.update_flag:
-            # print("flag -------")
-            try:
-                dx = self.robot_mx - self.robot.get_robot_position()[0]
-                dy = self.robot_my - self.robot.get_robot_position()[1]
-                # print(f"{dx} ------{dy}")
-                beta = 0
-                if abs(dx) < 10 and abs(dy) < 10:
-                    print("Robot Finished！！！！！！！！ ")
-                    self.daq.stopDaq()
-                if dx > 0:
-                    alpha = math.atan(dy / dx)
-                    beta = int(270 - math.degrees(alpha))
-                elif dx < 0:
-                    alpha = math.atan(dy / dx)
-                    beta = int(90 - math.degrees(alpha))
-                else:
-                    if dy < 0:
-                        beta = 0
-                    else:
-                        bata = 180
-                print("beta update:", beta)
-                self.beta_dial_edit.blockSignals(True)
-                self.beta_edit.blockSignals(True)
-                self.beta_edit.setValue(beta)
-                self.beta_dial_edit.setValue(beta)
-                self.daq.set_beta(beta)
-                self.beta_dial_edit.blockSignals(False)
-                self.beta_edit.blockSignals(False)
-            except Exception as e:
-                print(f"update: {e}")
-
     def slot_text_browser(self):
         # text_browser槽函数
         # self.daq.set_beta(self.daq.get_beta() + 10)
         # self.textBrowser.clear()
         text = f'频率f：<font color="red">{self.daq.get_f()}</font> 角度beta: <font color="red">{self.daq.get_beta()}</font> 磁场强度B: <font color="red">{self.daq.get_B()}</font>'
         text_a = f'ao0: <font color="red">{self.daq.write_a0:.2f}</font> ao1: <font color="red">{self.daq.write_a1:.2f}</font> ao2: <font color="red">{self.daq.write_a2:.2f}</font>'
-        text_robot = f'robot_mx: <font color="red">{self.robot_mx}</font> robot_my: <font color="red">{self.robot_my}</font>'
-        self.textBrowser.append(text + '        ' + text_a + '        ' + text_robot)
-
-        self.update_second_beta()
-
+        self.textBrowser.append(text + '        ' + text_a)
+        # self.update_second_beta()
 
     def refreshShow(self):
         # 将 OpenCV 图像转换为 Qt 图像
         # print(self.videoThread.frame.shape)
         try:
-            if self.position_list:
+            if self.position_list and self.show_planned_path:
                 for position in self.position_list:
-                    cv2.circle(self.videoThread.frame, (position[0], 1080 - position[1]), 3, (0, 255, 0), -1)
+                    cv2.circle(self.videoThread.frame, (position[0], 1080 - position[1]), 5, (0, 255, 0), -1)
         except Exception as e:
             print(f"plot: {e}")
-        height, width, channel = self.videoThread.frame.shape
-        # print(height + ">>" + width + ">>" + channel )
-        bytes_per_line = 3 * width
-        q_image = QImage(self.videoThread.frame.data, width, height, bytes_per_line, QImage.Format_BGR888)  # 设置颜色格式
-        #
-        # # # 将 Qt 图像设置为 QLabel 的背景
-        self.ImgShowLabel.setPixmap(QPixmap.fromImage(q_image))
-
+        try:
+            height, width, channel = self.videoThread.frame.shape
+            # print(height + ">>" + width + ">>" + channel)
+            bytes_per_line = 3 * width
+            q_image = QImage(self.videoThread.frame.data, width, height, bytes_per_line, QImage.Format_BGR888)  # 设置颜色格式
+            # # # 将 Qt 图像设置为 QLabel 的背景
+            self.ImgShowLabel.setPixmap(QPixmap.fromImage(q_image))
+        except Exception as e:
+            print(f"refreshShow------: {e}")
         self.robot_x.setText(str(self.robot.get_robot_position()[0]))
         self.robot_y.setText(str(self.robot.get_robot_position()[1]))
 
@@ -377,17 +315,6 @@ class MainWindow(QWidget):
         self.label_position.move(pos + delta)
         self.label_position.setText("(%d, %d)" % (pos.x(), 1080 - pos.y()))
         self.label_position.adjustSize()
-
-    @QtCore.pyqtSlot(QtCore.QPoint)
-    def mousePositionPressed(self, pos):
-        self.robot_mx = pos.x()
-        self.robot_my = 1080 - pos.y()
-        self.robot_mx_edit.blockSignals(True)
-        self.robot_my_edit.blockSignals(True)
-        self.robot_mx_edit.setValue(self.robot_mx)
-        self.robot_my_edit.setValue(self.robot_my)
-        self.robot_mx_edit.blockSignals(False)
-        self.robot_my_edit.blockSignals(False)
 
     @QtCore.pyqtSlot()
     def spaceKeyPressed(self):
@@ -402,11 +329,10 @@ class MainWindow(QWidget):
         self.daq.startDaq()
         self.daq.start()
 
-
     def update_pid(self):
         # self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
         try:
-            B, f, alpha, beta = self.pid.pidPosition(self.robot.get_robot_position(), self.pid_t)
+            B, f, alpha, beta = self.pid.pidPosition(self.robot.get_robot_position())
             self.beta_dial_edit.blockSignals(True)
             self.beta_edit.blockSignals(True)
             self.beta_edit.setValue(beta)
@@ -427,6 +353,7 @@ class MainWindow(QWidget):
 
 
 if __name__ == "__main__":
+    # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     Window = MainWindow()
     Window.ui.show()

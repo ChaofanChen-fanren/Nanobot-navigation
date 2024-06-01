@@ -38,6 +38,7 @@ class PID:
         self.errSumLimit_y = 1000
 
         self.last_Err_dm = 0
+        self.index_thrombus_path = None
 
         # 通过Astar算法计算路径
         self.path_x_list, self.path_y_list = self.get_path(frame, contours)
@@ -48,7 +49,6 @@ class PID:
         self.is_arrived_dis = 15.0
 
         # 定义到达血栓区域的index路径
-        self.index_thrombus_path = None
         self.is_rotate = False
         self.rotate_index = 0
 
@@ -96,26 +96,25 @@ class PID:
         rx, ry = astar.planning(*astar.convert_coordinates(sx, sy), *astar.convert_coordinates(gx, gy))
         # 数组坐标系 转换为 机器人坐标系  数组-》图像-》机器人  路径是倒推
         rx, ry = rx[::-1], ry[::-1]
-
+        #
         path_x_list, path_y_list = [], []
         # gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=gx, y=gy),  4)
         gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=ry[0], y=rx[0]),  4)
 
-        print(frame.shape[0])
+        # print(frame.shape[0])
         for point in gen_points:
             path_x_list.append(point[0])
             path_y_list.append(point[1])
 
-        print("-------")
+        # print("-------")
 
         for kx, ky in zip(rx, ry):
             ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=ky, y=kx)
             path_x_list.append(ix)
             path_y_list.append(iy)
         path_x_list, path_y_list = path_x_list[::5], path_y_list[::5]
+
         self.index_thrombus_path = len(path_x_list)
-
-
         # 添加通血栓(thrombus)路径
         # cap = openFlirCamera()
         # ret, frame = cap.read()
@@ -123,17 +122,17 @@ class PID:
         # frame = cv2.resize(frame, (1080, 1080))
         # if contours is not None:
         #     cv2.drawContours(frame, contours, -1, (0, 0, 0), cv2.FILLED)
-        thrombus = Thrombus(weights_path="./best_thrombus_model.pth", frame=frame)
-        px, py = thrombus.get_px_py()
-        for i in range(10):
-            for kx, ky in zip(px, py):
-                ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=kx, y=ky)
-                path_x_list.append(ix)
-                path_y_list.append(iy)
+        # thrombus = Thrombus(weights_path="./best_thrombus_model.pth", frame=frame)
+        # px, py = thrombus.get_px_py()
+        # for i in range(10):
+        #     for kx, ky in zip(px, py):
+        #         ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=kx, y=ky)
+        #         path_x_list.append(ix)
+        #         path_y_list.append(iy)
 
         return path_x_list, path_y_list
 
-    def GetCalcuValue(self, t):
+    def GetCalcuValue(self):
         # x = self.x0 + t
         # y = self.y0 + 200*math.sin(t/50)
         # x = self.path_x_list[t]
@@ -170,14 +169,14 @@ class PID:
             self.rotate_index = 0
 
     # 位置式PID
-    def pidPosition(self, robot_position, t):
-        print(f"X:{robot_position[0]} , Y: {robot_position[1]} , T:{t:.2f}\n")
+    def pidPosition(self, robot_position):
+        print(f"X:{robot_position[0]} , Y: {robot_position[1]}")
         # self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
         # 到达当前设定目标点后，更新下一个目标点，清楚pid 参数 Err=0 errSum=0
 
         if self.index_path < self.index_thrombus_path:  # 行驶到血栓区域路径
             if self.is_arrived(robot_position):
-                self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
+                self.setValue_x, self.setValue_y = self.GetCalcuValue()
                 self.clear_pid()
         elif self.index_thrombus_path <= self.index_path < len(self.path_x_list):  # 行驶血栓路径
             if self.is_rotate:  # 当前状态是否要旋转
@@ -186,7 +185,7 @@ class PID:
                 return B, f, alpha, beta
             else:
                 if self.is_arrived(robot_position):
-                    self.setValue_x, self.setValue_y = self.GetCalcuValue(t)
+                    self.setValue_x, self.setValue_y = self.GetCalcuValue()
                     self.is_rotate = True  # 到达目标点进行自旋十秒
         else:
             print("整个任务完成啦啦啦啦！！！！！！！！！！！！！！！！！！！！！！！！")
