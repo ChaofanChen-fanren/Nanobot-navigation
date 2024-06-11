@@ -1,3 +1,4 @@
+import datetime
 import sys
 import time
 import cv2
@@ -208,6 +209,8 @@ class MainWindow(QWidget):
         self.show_planned_path = False
         self.position_list = self.pid.plot_list()
 
+        self.results_file = "results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+
     def update_show_tracking_box(self):
         self.videoThread.show_tracking_robot = not self.videoThread.show_tracking_robot
 
@@ -345,7 +348,13 @@ class MainWindow(QWidget):
             self.f_edit.setValue(f)
             self.alpha_edit.setValue(alpha)
             self.pid_t += 1
-            print("pid update ：", self.pid_t)
+            # print("pid update ：", self.pid_t)
+            with open(self.results_file, "a") as f:
+                info = f"{self.pid_t},{self.pid.setValue_x},{self.pid.setValue_y}," \
+                      f"{self.robot.get_robot_position()[0]},{self.robot.get_robot_position()[1]}," \
+                      f"{B},{f},{alpha},{beta}"
+                f.write(info + "\n")
+
         except Exception as e:
             print(f"update_pid: {e}")
 
