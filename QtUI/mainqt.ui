@@ -191,7 +191,7 @@
 	background-color: #1e1d23;</string>
       </property>
       <property name="maximum">
-       <number>300</number>
+       <number>2000</number>
       </property>
      </widget>
     </item>

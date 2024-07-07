@@ -2,9 +2,10 @@ import math
 from .Astar import Astar
 from .Obstacle import Obstacle
 from util import get_ploy_points, get_start_goal, generate_points, generate_sin_wave, generate_circle_path, generate_square_path, generate_sin_path
-from .Thrombus import Thrombus
+from .Thrombus import Thrombus, SweepSearcher
 from util import openFlirCamera
 import cv2
+
 class PID:
     def __init__(self, frame,
                  x0, y0, contours,
@@ -41,7 +42,8 @@ class PID:
         self.index_thrombus_path = None
 
         # 通过Astar算法计算路径
-        self.path_x_list, self.path_y_list = self.get_path(frame, contours)
+        # self.path_x_list, self.path_y_list = self.get_path(frame, contours)
+        self.path_x_list, self.path_y_list = self.get_thrombus_path(frame, contours)
         # 获取给定路线
         # self.path_x_list, self.path_y_list = self.get_a_path()
         print(f"----len{len(self.path_x_list)}")
@@ -83,24 +85,56 @@ class PID:
         return x, y
 
 
+    def get_cover_planning(self, ploy):
+        ox, oy = [point[0] for point in ploy], [point[1] for point in ploy]
+        ox.append(ploy[0][0])
+        oy.append(ploy[0][1])
+        resolution = 10
+        sweep = SweepSearcher(ox, oy, resolution)
+        px, py = sweep.get_res()
+        return px, py
+
+    def get_thrombus_path(self, frame, contours=None):
+        ploy = get_ploy_points(frame)
+        px, py = self.get_cover_planning(ploy)
+
+        gen_points = generate_points((self.x0, self.y0),
+                                     self.imgxy2robotxy(img_height=frame.shape[0], x=ploy[0][0], y=ploy[0][1]), 4)
+        path_x_list, path_y_list = [], []
+        for point in gen_points:
+            path_x_list.append(point[0])
+            path_y_list.append(point[1])
+        path_x_list, path_y_list = path_x_list[::5], path_y_list[::5]
+        self.index_thrombus_path = len(path_x_list)
+
+        for i in range(10):
+            for kx, ky in zip(px, py):
+                ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=kx, y=ky)
+                path_x_list.append(ix)
+                path_y_list.append(iy)
+
+        return path_x_list, path_y_list
+
     def get_path(self, frame, contours=None):
         # obstacle = Obstacle(weights_path="../unet.pth", frame=frame)
         obstacle = Obstacle(weights_path="./unet.pth", frame=frame)
+        # obstacle = Obstacle(weights_path="./best_obstraction_model-22.pth", frame=frame)
         inflation_radius = 3  # 障碍物膨胀半径
-        robot_radius = 5  # 机器人的半径
+        robot_radius = 7  # 机器人的半径
         grid_size = 4.0  # 网格大小
         ploy = get_ploy_points(frame)
         # ploy 获取为图像坐标系
         astar = Astar(obstacle.obstacle_map, inflation_radius, robot_radius, grid_size, ploy=ploy)
-        sx, sy, gx, gy = get_start_goal(frame)
+        sx, sy, gx, gy, px, py = get_start_goal(frame)
         rx, ry = astar.planning(*astar.convert_coordinates(sx, sy), *astar.convert_coordinates(gx, gy))
         # 数组坐标系 转换为 机器人坐标系  数组-》图像-》机器人  路径是倒推
         rx, ry = rx[::-1], ry[::-1]
         #
         path_x_list, path_y_list = [], []
         # gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=gx, y=gy),  4)
-        gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=ry[0], y=rx[0]),  4)
-
+        gen_points = generate_points((self.x0, self.y0), self.imgxy2robotxy(img_height=frame.shape[0], x=ry[0], y=rx[0]), 4)
+        gen_points1 = generate_points(self.imgxy2robotxy(img_height=frame.shape[0], x=ry[-1], y=rx[-1]),
+                                      self.imgxy2robotxy(img_height=frame.shape[0], x=px, y=py), 4)
         # print(frame.shape[0])
         for point in gen_points:
             path_x_list.append(point[0])
@@ -112,6 +146,10 @@ class PID:
             ix, iy = self.imgxy2robotxy(img_height=frame.shape[0], x=ky, y=kx)
             path_x_list.append(ix)
             path_y_list.append(iy)
+
+        for point in gen_points1:
+            path_x_list.append(point[0])
+            path_y_list.append(point[1])
         path_x_list, path_y_list = path_x_list[::5], path_y_list[::5]
 
         self.index_thrombus_path = len(path_x_list)
@@ -164,7 +202,7 @@ class PID:
 
     def update_rotate_index(self):
         self.rotate_index += 1
-        if self.rotate_index == 10:
+        if self.rotate_index == 30:
             self.is_rotate = False
             self.rotate_index = 0
 
@@ -180,13 +218,14 @@ class PID:
                 self.clear_pid()
         elif self.index_thrombus_path <= self.index_path < len(self.path_x_list):  # 行驶血栓路径
             if self.is_rotate:  # 当前状态是否要旋转
-                self.updata_rotate_index()
-                B, f, beta, alpha = 5, 70, 0, 0
+                self.update_rotate_index()
+                B, f, beta, alpha = 15, 900, 0, 0
                 return B, f, alpha, beta
             else:
                 if self.is_arrived(robot_position):
                     self.setValue_x, self.setValue_y = self.GetCalcuValue()
                     self.is_rotate = True  # 到达目标点进行自旋十秒
+                    self.clear_pid()
         else:
             print("整个任务完成啦啦啦啦！！！！！！！！！！！！！！！！！！！！！！！！")
             return 0, 0, 0, 90  # 返回 beta=0， B=0
@@ -208,14 +247,15 @@ class PID:
         kp_b, kd_b, kp_f, kd_f = 0.08, 0.001, 0.65, 0.10
         # kp_b, kd_b, kp_f, kd_f = 0.08, 0.001, 1.30, 0.10
         # B = kp_b*dm + kd_b*d_err_dm
-        B = 5
+        B = 15
         f = kp_f * dm + kd_f * d_err_dm
         f = int(f)
-        if f > 70:
-            f = 70
         beta = self.cal_beta(dx=d_x, dy=d_y)
         print(f"-----PID UPDATE f:{f}, B:{B}, dm:{dm}, beta:{beta}")
         alpha = 90
+        if self.index_thrombus_path <= self.index_path < len(self.path_x_list):
+            f, alpha = 400, 10
+            # f, alpha = 200, 90
         return B, f, alpha, beta
 
     def plot_list(self):

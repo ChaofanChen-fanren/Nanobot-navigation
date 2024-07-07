@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+/videos
 
 .ipynb_checkpoints
 best_thrombus_model.pth

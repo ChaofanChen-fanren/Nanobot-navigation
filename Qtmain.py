@@ -297,7 +297,7 @@ class MainWindow(QWidget):
         try:
             if self.position_list and self.show_planned_path:
                 for position in self.position_list:
-                    cv2.circle(self.videoThread.frame, (position[0], 1080 - position[1]), 5, (0, 255, 0), -1)
+                    cv2.circle(self.videoThread.frame, (position[0], 1080 - position[1]), 2, (0, 255, 0), -1)
         except Exception as e:
             print(f"plot: {e}")
         try:
@@ -348,6 +348,7 @@ class MainWindow(QWidget):
             self.f_edit.setValue(f)
             self.alpha_edit.setValue(alpha)
             self.pid_t += 1
+            self.robot.det_init_tracker_bbox()
             # print("pid update ：", self.pid_t)
             with open(self.results_file, "a") as f:
                 info = f"{self.pid_t},{self.pid.setValue_x},{self.pid.setValue_y}," \

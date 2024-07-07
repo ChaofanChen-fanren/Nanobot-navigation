@@ -64,8 +64,8 @@ def get_start_goal(frame):
     cv2.setMouseCallback("select point", mouse_callback, param=param)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    start_ponint, end_point, sin_point = param[2:4]
-    return start_ponint[0], start_ponint[1], end_point[0], end_point[1]
+    start_ponint, end_point, point = param[2:5]
+    return start_ponint[0], start_ponint[1], end_point[0], end_point[1], point[0], point[1]
 
 
 

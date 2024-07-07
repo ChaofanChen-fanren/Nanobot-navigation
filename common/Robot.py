@@ -1,5 +1,5 @@
 import cv2
-
+from util.operation import YOLO
 
 class Robot:
     def __init__(self, cap, frame_width, frame_height, img_frame=None, contours=None):
@@ -9,6 +9,9 @@ class Robot:
         params.net = "./common/object_tracking_vittrack_2023sep.onnx"
         self.tracker = cv2.TrackerVit_create(params)
         self.robot_img_position_list = list()
+
+        # 检测粒子模型
+        self.det_model = YOLO(onnx_path="./common/dect_robot.onnx")
 
         # Read the first frame
         self.cap = cap
@@ -43,6 +46,39 @@ class Robot:
     @staticmethod
     def imgxy2robotxy(img_height, x, y):
         return x, img_height - y
+
+
+    def det_init_tracker_bbox(self):
+        ret, frame = self.cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BayerBG2BGR)  # for RGB camera demosaicing
+        frame = cv2.resize(frame, (self.frame_width, self.frame_height))
+        robot = self.det_model.decect(frame)
+        is_update, robot_bbox, robot_conf = False, None, None
+        for i in range(len(robot)):
+            bbox_xyxy, conf = robot[i]['bbox'], robot[i]['conf']
+            if conf > 0.75:
+                is_update = True
+                if robot_conf:
+                    robot_bbox, robot_conf = bbox_xyxy, conf
+                else:
+                    if conf > robot_conf :
+                        robot_bbox, robot_conf = bbox_xyxy, conf
+
+        if is_update:
+            print(f"重新更新追踪框，置信度为：{robot_conf}")
+
+            def xyxy_to_xywh(box):
+                # 上面函数的逆函数
+                """Convert [x1 y1 x2 y2] box format to [x y w h] format."""
+                x, y = min(box[0], box[2]), min(box[1], box[3])
+                w, h = max(box[0], box[2]) - x, max(box[1], box[3]) - y
+                return [x, y, w, h]
+            self.tracker.init(frame, xyxy_to_xywh(robot_bbox))
+            # Initialize robot_position based on bbox center
+            x = int(self.bbox[0] + self.bbox[2] / 2)
+            y = int(self.bbox[1] + self.bbox[3] / 2)
+            self.robot_position = self.imgxy2robotxy(frame.shape[0], x, y)
+
 
     def init_tracker_bbox(self):
         ret, frame = self.cap.read()
